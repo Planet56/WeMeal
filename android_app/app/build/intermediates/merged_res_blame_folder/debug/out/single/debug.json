@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.wemeal.app-merged_res-29:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.wemeal.app-main-31:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.wemeal.app-merged_res-29:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.wemeal.app-main-31:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.wemeal.app-merged_res-29:/xml_data_extraction_rules.xml.flat",
+        "source": "com.wemeal.app-main-31:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.wemeal.app-merged_res-29:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.wemeal.app-main-31:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.wemeal.app-merged_res-29:/xml_backup_rules.xml.flat",
+        "source": "com.wemeal.app-main-31:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.wemeal.app-merged_res-29:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.wemeal.app-main-31:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    }
+]

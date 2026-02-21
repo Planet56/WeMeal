@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    function isAdmin() {
+      return request.auth != null && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+        request.auth.token.email == 'benard.amaury56@gmail.com'
+      );
+    }
+
+    // Allow public read access to recipes collection
+    match /recipes/{recipeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read/write their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can manage all users
+      allow read, write: if isAdmin();
+    }
+
+    // Promo codes collection
+    match /promo_codes/{codeId} {
+      // Users can verify a code (get) but not list them all
+      allow get: if request.auth != null;
+      
+      // Admins can manage everything
+      allow read, write: if isAdmin();
+    }
+
+    // Benefit codes collection
+    match /benefit_codes/{codeId} {
+      // Users can verify a code (get) via cloud function (indirectly) or direct check if needed
+      allow get: if request.auth != null;
+      
+      // Admins can manage everything
+      allow read, write: if isAdmin();
+
+      // Usages subcollection
+      match /usages/{userId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if isAdmin();
+      }
+    }
+
+    // Purchases / Invoices collection
+    match /invoices/{invoiceId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow read, write: if isAdmin();
+    }
+    
+    match /purchases/{purchaseId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow read, write: if isAdmin();
+    }
+  }
+}

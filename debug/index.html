@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeMeal — Debug Panel</title>
+    <link rel="stylesheet" href="../index.css?v=debug">
+    <link rel="stylesheet" href="../animation.css">
+    <style>
+        /* ====== DEBUG PANEL STYLES ====== */
+        :root {
+            --dbg: #1a1a2e;
+            --dbg-surface: rgba(255, 255, 255, 0.06);
+            --dbg-border: rgba(255, 255, 255, 0.1);
+            --dbg-accent: #6c63ff;
+            --dbg-accent2: #00d2ff;
+            --dbg-text: #e0e0e0;
+            --dbg-text-dim: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dbg);
+            color: var(--dbg-text);
+            min-height: 100vh;
+        }
+
+        .debug-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* ---- Sidebar ---- */
+        .debug-sidebar {
+            background: rgba(0, 0, 0, 0.35);
+            border-right: 1px solid var(--dbg-border);
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .debug-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 4px;
+            background: linear-gradient(135deg, var(--dbg-accent), var(--dbg-accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .debug-subtitle {
+            font-size: 0.8rem;
+            color: var(--dbg-text-dim);
+            margin: 0 0 24px;
+        }
+
+        .debug-section {
+            margin-bottom: 24px;
+        }
+
+        .debug-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--dbg-text-dim);
+            margin-bottom: 10px;
+        }
+
+        .debug-group {
+            background: var(--dbg-surface);
+            border: 1px solid var(--dbg-border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .debug-label {
+            font-size: 0.75rem;
+            color: var(--dbg-text-dim);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Buttons grid */
+        .debug-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .debug-btn {
+            padding: 10px 6px;
+            border: 1px solid var(--dbg-border);
+            border-radius: 10px;
+            background: var(--dbg-surface);
+            color: var(--dbg-text);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .debug-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--dbg-accent);
+            transform: translateY(-1px);
+        }
+
+        .debug-btn.active {
+            background: rgba(108, 99, 255, 0.2);
+            border-color: var(--dbg-accent);
+            box-shadow: 0 0 12px rgba(108, 99, 255, 0.3);
+        }
+
+        .debug-btn .emoji {
+            font-size: 1.3rem;
+        }
+
+        /* Inputs */
+        .debug-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--dbg-border);
+            border-radius: 10px;
+            background: var(--dbg-surface);
+            color: var(--dbg-text);
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .debug-input:focus {
+            border-color: var(--dbg-accent);
+        }
+
+        .debug-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .debug-row .debug-input {
+            flex: 1;
+        }
+
+        /* Range slider */
+        .debug-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .debug-range {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--dbg-border);
+            outline: none;
+        }
+
+        .debug-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--dbg-accent);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(108, 99, 255, 0.4);
+        }
+
+        .debug-range-val {
+            font-size: 0.85rem;
+            min-width: 40px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Action button */
+        .debug-action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--dbg-accent), var(--dbg-accent2));
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .debug-action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .debug-action-btn.secondary {
+            background: var(--dbg-surface);
+            border: 1px solid var(--dbg-border);
+            color: var(--dbg-text);
+            margin-top: 6px;
+        }
+
+        /* Divider */
+        .debug-divider {
+            height: 1px;
+            background: var(--dbg-border);
+            margin: 20px 0;
+        }
+
+        /* Console log */
+        .debug-console {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--dbg-border);
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.7rem;
+            line-height: 1.6;
+        }
+
+        .debug-console .log-entry {
+            color: var(--dbg-text-dim);
+        }
+
+        .debug-console .log-entry.info {
+            color: var(--dbg-accent2);
+        }
+
+        .debug-console .log-entry.warn {
+            color: #ffb74d;
+        }
+
+        .debug-console .log-entry.success {
+            color: #66bb6a;
+        }
+
+        /* ---- Preview Area ---- */
+        .debug-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: radial-gradient(ellipse at center, rgba(108, 99, 255, 0.04) 0%, transparent 70%);
+        }
+
+        .debug-preview-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--dbg-text-dim);
+            margin-bottom: 16px;
+        }
+
+        .preview-widget-wrap {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* Override the weather widget to center in preview */
+        .preview-widget-wrap .weather-widget {
+            margin: 0 auto;
+            max-width: 700px;
+        }
+
+        /* Quick stats */
+        .debug-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 30px;
+        }
+
+        .debug-stat {
+            background: var(--dbg-surface);
+            border: 1px solid var(--dbg-border);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .debug-stat .stat-val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--dbg-accent), var(--dbg-accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .debug-stat .stat-label {
+            font-size: 0.65rem;
+            color: var(--dbg-text-dim);
+            margin-top: 4px;
+        }
+
+        /* Back to site link */
+        .debug-back {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            background: var(--dbg-surface);
+            border: 1px solid var(--dbg-border);
+            color: var(--dbg-text);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .debug-back:hover {
+            background: rgba(108, 99, 255, 0.2);
+            border-color: var(--dbg-accent);
+        }
+
+        @media (max-width: 800px) {
+            .debug-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .debug-sidebar {
+                max-height: none;
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="debug-layout">
+        <!-- ====== SIDEBAR CONTROLS ====== -->
+        <aside class="debug-sidebar">
+            <h1 class="debug-title">🛠 Debug Panel</h1>
+            <p class="debug-subtitle">WeMeal — Weather Widget Tester</p>
+
+            <!-- WEATHER TYPE -->
+            <div class="debug-section">
+                <div class="debug-section-title">Type de Météo</div>
+                <div class="debug-btn-grid">
+                    <button class="debug-btn active" data-weather="sunny" onclick="setWeather('sunny')">
+                        <span class="emoji">☀️</span> Ensoleillé
+                    </button>
+                    <button class="debug-btn" data-weather="cloudy" onclick="setWeather('cloudy')">
+                        <span class="emoji">⛅</span> Nuageux
+                    </button>
+                    <button class="debug-btn" data-weather="rainy" onclick="setWeather('rainy')">
+                        <span class="emoji">🌧️</span> Pluvieux
+                    </button>
+                    <button class="debug-btn" data-weather="snowy" onclick="setWeather('snowy')">
+                        <span class="emoji">❄️</span> Neigeux
+                    </button>
+                    <button class="debug-btn" data-weather="stormy" onclick="setWeather('stormy')">
+                        <span class="emoji">⛈️</span> Orageux
+                    </button>
+                    <button class="debug-btn" data-weather="foggy" onclick="setWeather('foggy')">
+                        <span class="emoji">🌫️</span> Brumeux
+                    </button>
+                </div>
+            </div>
+
+            <!-- TEMPERATURE -->
+            <div class="debug-section">
+                <div class="debug-section-title">Température</div>
+                <div class="debug-group">
+                    <div class="debug-range-wrap">
+                        <input type="range" class="debug-range" id="temp-slider" min="-15" max="45" value="20"
+                            oninput="setTemp(this.value)">
+                        <span class="debug-range-val" id="temp-val">20°C</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOCATION -->
+            <div class="debug-section">
+                <div class="debug-section-title">Localisation</div>
+                <div class="debug-group">
+                    <div class="debug-row">
+                        <input type="text" class="debug-input" id="city-input" placeholder="Nom de la ville"
+                            value="Paris">
+                        <button class="debug-btn" onclick="setCity()" style="padding: 10px 14px;">✓</button>
+                    </div>
+                    <div class="debug-btn-grid" style="margin-top: 8px;">
+                        <button class="debug-btn" onclick="quickCity('Paris')">🗼 Paris</button>
+                        <button class="debug-btn" onclick="quickCity('Lyon')">🏛 Lyon</button>
+                        <button class="debug-btn" onclick="quickCity('Brest')">⛵ Brest</button>
+                        <button class="debug-btn" onclick="quickCity('Chamonix')">🏔 Chamonix</button>
+                        <button class="debug-btn" onclick="quickCity('Marseille')">☀️ Marseille</button>
+                        <button class="debug-btn" onclick="quickCity('Strasbourg')">🥨 Strasbourg</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PARTICLES -->
+            <div class="debug-section">
+                <div class="debug-section-title">Particules</div>
+                <div class="debug-group">
+                    <label class="debug-label">Nombre de particules (pluie/neige)</label>
+                    <div class="debug-range-wrap">
+                        <input type="range" class="debug-range" id="particle-slider" min="0" max="100" value="35"
+                            oninput="setParticleCount(this.value)">
+                        <span class="debug-range-val" id="particle-val">35</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANIMATION SPEED -->
+            <div class="debug-section">
+                <div class="debug-section-title">Vitesse Animations</div>
+                <div class="debug-group">
+                    <div class="debug-range-wrap">
+                        <input type="range" class="debug-range" id="speed-slider" min="10" max="300" value="100"
+                            oninput="setSpeed(this.value)">
+                        <span class="debug-range-val" id="speed-val">1.0x</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="debug-divider"></div>
+
+            <!-- QUICK PRESETS -->
+            <div class="debug-section">
+                <div class="debug-section-title">Presets Rapides</div>
+                <div class="debug-btn-grid">
+                    <button class="debug-btn" onclick="applyPreset('summer')">
+                        <span class="emoji">🏖</span> Été
+                    </button>
+                    <button class="debug-btn" onclick="applyPreset('winter')">
+                        <span class="emoji">🎿</span> Hiver
+                    </button>
+                    <button class="debug-btn" onclick="applyPreset('storm')">
+                        <span class="emoji">🌪</span> Tempête
+                    </button>
+                    <button class="debug-btn" onclick="applyPreset('autumn')">
+                        <span class="emoji">🍂</span> Automne
+                    </button>
+                    <button class="debug-btn" onclick="applyPreset('spring')">
+                        <span class="emoji">🌸</span> Printemps
+                    </button>
+                    <button class="debug-btn" onclick="applyPreset('night')">
+                        <span class="emoji">🌙</span> Nuit
+                    </button>
+                </div>
+            </div>
+
+            <div class="debug-divider"></div>
+
+            <!-- ACTIONS -->
+            <div class="debug-section">
+                <button class="debug-action-btn" onclick="fetchRealWeather()">📍 Charger Météo Réelle</button>
+                <button class="debug-action-btn secondary" onclick="cycleAll()">🔄 Cycle Automatique (5s)</button>
+            </div>
+
+            <div class="debug-divider"></div>
+
+            <!-- CONSOLE -->
+            <div class="debug-section">
+                <div class="debug-section-title">Console</div>
+                <div class="debug-console" id="debug-console">
+                    <div class="log-entry info">Debug panel ready.</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ====== PREVIEW AREA ====== -->
+        <main class="debug-preview">
+            <div class="debug-preview-label">Live Preview</div>
+
+            <div class="preview-widget-wrap">
+                <!-- This is the actual weather widget from the main site -->
+                <div class="weather-widget" id="weather-widget" data-weather="sunny">
+                    <div class="weather-scene">
+                        <div class="weather-ambient"></div>
+                        <div class="weather-sun">
+                            <div class="weather-sun-core"></div>
+                            <div class="weather-sun-rays"></div>
+                        </div>
+                        <div class="weather-cloud weather-cloud-1"></div>
+                        <div class="weather-cloud weather-cloud-2"></div>
+                        <div class="weather-cloud weather-cloud-3"></div>
+                        <div class="weather-particles" id="weather-particles"></div>
+                        <div class="weather-lightning"></div>
+                        <div class="weather-fog weather-fog-1"></div>
+                        <div class="weather-fog weather-fog-2"></div>
+                    </div>
+                    <div class="weather-info">
+                        <div class="weather-temp" id="weather-temp">20°C</div>
+                        <div class="weather-desc" id="weather-desc">Ensoleillé</div>
+                        <div class="weather-location" id="weather-location">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+                                style="vertical-align: middle; margin-right: 4px;">
+                                <path
+                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                            </svg>
+                            <span id="location-text">Paris</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="debug-stats">
+                <div class="debug-stat">
+                    <div class="stat-val" id="stat-type">sunny</div>
+                    <div class="stat-label">Type</div>
+                </div>
+                <div class="debug-stat">
+                    <div class="stat-val" id="stat-particles">0</div>
+                    <div class="stat-label">Particules</div>
+                </div>
+                <div class="debug-stat">
+                    <div class="stat-val" id="stat-speed">1.0x</div>
+                    <div class="stat-label">Vitesse</div>
+                </div>
+                <div class="debug-stat">
+                    <div class="stat-val" id="stat-city">Paris</div>
+                    <div class="stat-label">Ville</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <a href="/" class="debug-back">← Retour au site</a>
+
+    <script>
+        // ===== State =====
+        let currentWeather = 'sunny';
+        let currentTemp = 20;
+        let currentCity = 'Paris';
+        let particleCount = 35;
+        let speedMultiplier = 1.0;
+        let cycleInterval = null;
+
+        const weatherTypes = ['sunny', 'cloudy', 'rainy', 'snowy', 'stormy', 'foggy'];
+        const weatherDescs = {
+            sunny: 'Ensoleillé',
+            cloudy: 'Nuageux',
+            rainy: 'Pluvieux',
+            snowy: 'Neigeux',
+            stormy: 'Orageux',
+            foggy: 'Brumeux'
+        };
+
+        // ===== Core Functions =====
+        function setWeather(type) {
+            currentWeather = type;
+            const widget = document.getElementById('weather-widget');
+            widget.setAttribute('data-weather', type);
+
+            // Update button states
+            document.querySelectorAll('.debug-btn[data-weather]').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-weather') === type);
+            });
+
+            // Update desc
+            document.getElementById('weather-desc').innerText = weatherDescs[type] || type;
+
+            // Particles
+            renderParticles(type);
+
+            // Stats
+            document.getElementById('stat-type').innerText = type;
+            log(`Weather → ${type}`, 'info');
+        }
+
+        function setTemp(val) {
+            currentTemp = parseInt(val);
+            document.getElementById('temp-val').innerText = `${val}°C`;
+            document.getElementById('weather-temp').innerText = `${val}°C`;
+        }
+
+        function setCity() {
+            const city = document.getElementById('city-input').value.trim();
+            if (!city) return;
+            currentCity = city;
+            document.getElementById('location-text').innerText = city;
+            document.getElementById('stat-city').innerText = city;
+            log(`City → ${city}`, 'info');
+        }
+
+        function quickCity(name) {
+            document.getElementById('city-input').value = name;
+            currentCity = name;
+            document.getElementById('location-text').innerText = name;
+            document.getElementById('stat-city').innerText = name;
+            log(`City → ${name}`, 'info');
+        }
+
+        function setParticleCount(val) {
+            particleCount = parseInt(val);
+            document.getElementById('particle-val').innerText = val;
+            renderParticles(currentWeather);
+        }
+
+        function setSpeed(val) {
+            speedMultiplier = parseInt(val) / 100;
+            document.getElementById('speed-val').innerText = `${speedMultiplier.toFixed(1)}x`;
+            document.getElementById('stat-speed').innerText = `${speedMultiplier.toFixed(1)}x`;
+
+            // Apply speed to widget
+            const widget = document.getElementById('weather-widget');
+            widget.style.setProperty('--anim-speed', `${1 / speedMultiplier}`);
+
+            // Adjust all animation durations
+            const animatedEls = widget.querySelectorAll('*');
+            animatedEls.forEach(el => {
+                const computed = getComputedStyle(el);
+                if (computed.animationName && computed.animationName !== 'none') {
+                    // Let CSS custom property handle it
+                }
+            });
+
+            log(`Speed → ${speedMultiplier.toFixed(1)}x`, 'info');
+        }
+
+        // ===== Particle Renderer =====
+        function renderParticles(type) {
+            const container = document.getElementById('weather-particles');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let count = 0;
+
+            if (type === 'rainy' || type === 'stormy') {
+                count = type === 'stormy' ? Math.min(particleCount * 1.5, 100) : particleCount;
+                for (let i = 0; i < count; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'rain-drop';
+                    drop.style.left = `${Math.random() * 100}%`;
+                    drop.style.animationDuration = `${(0.5 + Math.random() * 0.6) / speedMultiplier}s`;
+                    drop.style.animationDelay = `${Math.random() * 2}s`;
+                    drop.style.opacity = `${0.4 + Math.random() * 0.6}`;
+                    drop.style.height = `${12 + Math.random() * 10}px`;
+                    container.appendChild(drop);
+                }
+            } else if (type === 'snowy') {
+                count = particleCount;
+                for (let i = 0; i < count; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'snowflake';
+                    flake.style.left = `${Math.random() * 100}%`;
+                    flake.style.animationDuration = `${(3 + Math.random() * 4) / speedMultiplier}s`;
+                    flake.style.animationDelay = `${Math.random() * 5}s`;
+                    flake.style.width = flake.style.height = `${3 + Math.random() * 5}px`;
+                    flake.style.opacity = `${0.4 + Math.random() * 0.6}`;
+                    container.appendChild(flake);
+                }
+            }
+
+            document.getElementById('stat-particles').innerText = count;
+        }
+
+        // ===== Presets =====
+        function applyPreset(preset) {
+            switch (preset) {
+                case 'summer':
+                    setWeather('sunny');
+                    document.getElementById('temp-slider').value = 32;
+                    setTemp(32);
+                    quickCity('Marseille');
+                    break;
+                case 'winter':
+                    setWeather('snowy');
+                    document.getElementById('temp-slider').value = -5;
+                    setTemp(-5);
+                    quickCity('Chamonix');
+                    break;
+                case 'storm':
+                    setWeather('stormy');
+                    document.getElementById('temp-slider').value = 14;
+                    setTemp(14);
+                    quickCity('Brest');
+                    document.getElementById('particle-slider').value = 80;
+                    setParticleCount(80);
+                    break;
+                case 'autumn':
+                    setWeather('cloudy');
+                    document.getElementById('temp-slider').value = 12;
+                    setTemp(12);
+                    quickCity('Lyon');
+                    break;
+                case 'spring':
+                    setWeather('sunny');
+                    document.getElementById('temp-slider').value = 18;
+                    setTemp(18);
+                    quickCity('Paris');
+                    break;
+                case 'night':
+                    setWeather('foggy');
+                    document.getElementById('temp-slider').value = 3;
+                    setTemp(3);
+                    quickCity('Strasbourg');
+                    break;
+            }
+            log(`Preset → ${preset}`, 'success');
+        }
+
+        // ===== Auto Cycle =====
+        function cycleAll() {
+            if (cycleInterval) {
+                clearInterval(cycleInterval);
+                cycleInterval = null;
+                log('Cycle stopped', 'warn');
+                return;
+            }
+
+            let idx = 0;
+            log('Cycle started (5s per state)', 'success');
+
+            cycleInterval = setInterval(() => {
+                const type = weatherTypes[idx % weatherTypes.length];
+                setWeather(type);
+                idx++;
+            }, 5000);
+        }
+
+        // ===== Fetch Real Weather =====
+        async function fetchRealWeather() {
+            log('Fetching real weather...', 'info');
+            try {
+                // Get location
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 });
+                });
+
+                const { latitude: lat, longitude: lon } = pos.coords;
+
+                // Reverse geocode
+                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+                const geoData = await geoRes.json();
+                const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Inconnu';
+
+                // Weather
+                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const wData = await wRes.json();
+                const temp = Math.round(wData.current_weather.temperature);
+                const code = wData.current_weather.weathercode;
+
+                // Map code to type
+                let type = 'sunny';
+                if (code === 0) type = 'sunny';
+                else if (code <= 3) type = 'cloudy';
+                else if (code <= 49) type = 'foggy';
+                else if (code <= 69) type = 'rainy';
+                else if (code <= 79) type = 'snowy';
+                else if (code <= 99) type = 'stormy';
+
+                // Apply
+                setWeather(type);
+                document.getElementById('temp-slider').value = temp;
+                setTemp(temp);
+                quickCity(city);
+
+                log(`Real weather: ${city} — ${temp}°C, ${type} (code ${code})`, 'success');
+            } catch (err) {
+                log(`Error: ${err.message}`, 'warn');
+            }
+        }
+
+        // ===== Console Logger =====
+        function log(msg, level = 'info') {
+            const el = document.getElementById('debug-console');
+            const ts = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            entry.textContent = `[${ts}] ${msg}`;
+            el.appendChild(entry);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // ===== Init =====
+        setWeather('sunny');
+    </script>
+</body>
+
+</html>

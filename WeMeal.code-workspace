@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "app/WeMeal/Models"
+		},
+		{
+			"path": "app/WeMeal/Views"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,219 @@
+/* ============================================
+   Chef Thinking / Cooking Animation
+   ============================================ */
+.chef-thinking-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.98), rgba(118, 75, 162, 0.98));
+    backdrop-filter: blur(20px);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.chef-thinking-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Cooking Container - takes most of screen */
+.cooking-container {
+    position: relative;
+    width: 350px;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    overflow: visible;
+}
+
+/* Pan Container - holds pan + food, animates tossing */
+.pan-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    animation: pan-toss 1.5s ease-in-out infinite;
+    transform-origin: 80% 100%;
+}
+
+/* The Pan itself */
+.pan {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 110px;
+    background: linear-gradient(180deg, #4b5563, #374151);
+    border-radius: 0 0 110px 110px;
+    box-shadow:
+        inset 0 -8px 0 rgba(0, 0, 0, 0.3),
+        0 15px 30px rgba(0, 0, 0, 0.3);
+    z-index: 20;
+}
+
+/* Handle attached to pan */
+.pan::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    right: -90px;
+    width: 100px;
+    height: 26px;
+    background: linear-gradient(180deg, #2d3748, #1a202c);
+    border-radius: 0 13px 13px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Shine on pan */
+.pan::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    right: 20px;
+    height: 15px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    border-radius: 50%;
+}
+
+/* Food Emoji - jumping items */
+.food-emoji {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    animation: food-jump 1.5s ease-in-out infinite;
+    z-index: 10;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* Staggered positions for multiple items */
+.food-emoji:nth-child(1) {
+    left: calc(50% - 50px);
+    animation-delay: 0s;
+}
+
+.food-emoji:nth-child(2) {
+    left: 50%;
+    animation-delay: 0.2s;
+}
+
+.food-emoji:nth-child(3) {
+    left: calc(50% + 50px);
+    animation-delay: 0.4s;
+}
+
+/* Pan tossing animation */
+@keyframes pan-toss {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    20% {
+        transform: rotate(-12deg);
+    }
+
+    40% {
+        transform: rotate(0deg);
+    }
+
+    60% {
+        transform: rotate(5deg);
+    }
+
+    80% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Food jumping animation - arc trajectory */
+@keyframes food-jump {
+    0% {
+        transform: translateX(-50%) translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+        z-index: 10;
+    }
+
+    15% {
+        z-index: 30;
+    }
+
+    30% {
+        transform: translateX(-50%) translateY(-200px) rotate(180deg) scale(1.1);
+        opacity: 1;
+        z-index: 30;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(-250px) rotate(360deg) scale(1.15);
+        z-index: 30;
+    }
+
+    70% {
+        transform: translateX(-50%) translateY(-150px) rotate(540deg) scale(1.05);
+        z-index: 30;
+    }
+
+    85% {
+        z-index: 10;
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(0) rotate(720deg) scale(1);
+        opacity: 1;
+        z-index: 10;
+    }
+}
+
+/* Cooking Text with Glow Effect */
+.cooking-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    position: relative;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 255, 255, 1) 50%,
+            rgba(255, 255, 255, 0.6) 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: text-glow-sweep 2s ease-in-out infinite;
+    text-shadow: none;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+/* Glow sweep from left to right */
+@keyframes text-glow-sweep {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

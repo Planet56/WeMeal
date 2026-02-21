@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeMeal - L'IA qui réinvente vos repas</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👨‍🍳</text></svg>">
+    <style>
+        /* Landing Specific Styles */
+        .landing-hero {
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .features-section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .landing-footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+            margin-top: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="glass"
+        style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-radius: 0; border-left: 0; border-right: 0; border-top: 0;">
+        <div class="logo">🍽️ WeMeal</div>
+        <a href="index.html" class="btn btn-primary">Accéder à l'App</a>
+    </nav>
+
+    <!-- Hero -->
+    <header class="landing-hero">
+        <h1 class="hero-title">Cuisinez plus intelligent avec l'IA</h1>
+        <p class="hero-subtitle">
+            Fini le casse-tête des repas. WeMeal génère des recettes personnalisées selon votre météo, vos goûts et
+            votre santé.
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="index.html" class="btn btn-primary" style="font-size: 1.2rem; padding: 16px 32px;">C'est parti
+                🚀</a>
+        </div>
+    </header>
+
+    <!-- Features -->
+    <section class="features-section">
+        <div class="features-grid">
+            <!-- Card 1 -->
+            <div class="glass feature-card">
+                <div class="feature-icon">🥦</div>
+                <h3 class="feature-title">Healthy & Adapté</h3>
+                <p class="feature-desc">
+                    Recettes sur-mesure pour régimes diabétiques, végétaliens, sans gluten ou végétariens.
+                </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="glass feature-card">
+                <div class="feature-icon">☀️</div>
+                <h3 class="feature-title">Météo-Sensible</h3>
+                <p class="feature-desc">
+                    Il pleut ? Une soupe réconfortante. Grand soleil ? Une salade fraîche. WeMeal s'adapte.
+                </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="glass feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">Intelligence Artificielle</h3>
+                <p class="feature-desc">
+                    Une IA puissante qui apprend de vos goûts pour vous proposer toujours mieux.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <p>&copy; 2026 WeMeal. Cuisiné avec ❤️ et 🤖.</p>
+    </footer>
+
+</body>
+
+</html>
