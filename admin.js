@@ -2477,10 +2477,11 @@ window.renderGiftCodes = function (giftsToRender = window._allGifts) {
                 <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-secondary);">
                     <th style="padding: 12px; font-weight: normal;">Code</th>
                     <th style="padding: 12px; font-weight: normal;">Date d'achat</th>
-                    <th style="padding: 12px; font-weight: normal;">Acheteur</th>
+                    <th style="padding: 12px; font-weight: normal;">Attribué à</th>
                     <th style="padding: 12px; font-weight: normal;">Durée</th>
                     <th style="padding: 12px; font-weight: normal;">Statut</th>
                     <th style="padding: 12px; font-weight: normal;">Utilisé par</th>
+                    <th style="padding: 12px; font-weight: normal; text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -2504,7 +2505,18 @@ window.renderGiftCodes = function (giftsToRender = window._allGifts) {
             ? `<span style="background: rgba(255,255,255,0.1); color: var(--text-muted); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Utilisé</span>`
             : `<span style="background: rgba(34,197,94,0.15); color: var(--success); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Non utilisé</span>`;
 
-        const buyerEmail = gift.isMilestone ? (gift.buyerId === 'Système' ? 'Système (Récompense)' : (getUserEmailByUid(gift.buyerId) || gift.buyerId)) : (getUserEmailByUid(gift.buyerId) || gift.buyerId || 'anonymous');
+        // Si c'est un code Système mais qu'il a été utilisé par quelqu'un, afficher qui. S'il n'est pas utilisé, afficher à qui le panel l'a attribué.
+        let buyerEmail = getUserEmailByUid(gift.buyerId) || gift.buyerId || 'anonymous';
+        if (gift.buyerId === 'Système' || gift.buyerId === 'System') {
+            buyerEmail = 'Système';
+            // Montrer à qui on a généré le code si l'info existe (souvent stocké dans usedBy ou owner)
+            if (gift.usedBy) {
+                buyerEmail = `Système (auto-assigné)`;
+            }
+        }
+        if (gift.isMilestone) {
+            buyerEmail = getUserEmailByUid(gift.buyerId) || gift.buyerId;
+        }
 
         let usedByHtml = "-";
         if (gift.usedBy) {
@@ -2538,12 +2550,39 @@ window.renderGiftCodes = function (giftsToRender = window._allGifts) {
                 <td style="padding: 12px;">${planText}</td>
                 <td style="padding: 12px;">${statusBadge}</td>
                 <td style="padding: 12px;">${usedByHtml}</td>
+                <td style="padding: 12px; text-align: right;">
+                    <button class="btn btn-glass btn-small" style="color: var(--danger); border-color: rgba(239,68,68,0.3); padding: 4px 8px;" onclick="deleteGiftCode('${code}', ${gift.isMilestone})">
+                        Supprimer
+                    </button>
+                </td>
             </tr>
         `;
     });
 
     html += `</tbody></table>`;
     container.innerHTML = html;
+};
+
+window.deleteGiftCode = async function (code, isMilestone) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ce code cadeau ? L'utilisateur ne pourra plus l'utiliser ni le voir dans son historique.")) return;
+
+    try {
+        const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+
+        // Supprimer de la collection appropriée selon si c'est un code promo (benefit_codes) ou une carte cadeau achetée (gift_codes)
+        // Note: l'admin panel met `isMilestone` à true pour tout ce qui vient de benefit_codes
+        const collectionName = isMilestone ? 'benefit_codes' : 'gift_codes';
+        await deleteDoc(doc(window.db, collectionName, code));
+
+        // Retirer de la liste locale et re-rendre
+        window._allGifts = window._allGifts.filter(g => g.code !== code);
+        renderGiftCodes();
+
+        showToast('Code supprimé avec succès.');
+    } catch (err) {
+        console.error("Erreur lors de la suppression:", err);
+        alert('Erreur lors de la suppression du code cadeau.');
+    }
 };
 
 document.getElementById('gift-search')?.addEventListener('input', (e) => {
