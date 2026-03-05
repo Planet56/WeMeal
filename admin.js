@@ -2101,18 +2101,14 @@ window.openUserDetailsModal = async function (uid, activeTab = 'info') {
     const achGrid = document.getElementById('ud-achievements');
     let totalUnlockedCount = 0;
     achGrid.innerHTML = ADMIN_ACHIEVEMENTS.map(a => {
-        let unlocked = false;
+        const unlockedList = user.wemeal_unlocked_achievements || [];
         const revoked = user.wemeal_revoked_achievements || [];
-        if (a.id === 'streak3') {
-            unlocked = (user.wemeal_unlocked_achievements || []).includes('streak3');
-        } else if (a.type === 'history') unlocked = historyCount >= a.threshold;
-        else if (a.type === 'favorites') unlocked = favCount >= a.threshold;
-        else if (a.type === 'custom') unlocked = customCount >= a.threshold;
 
-        // Manual override if explicitly in wemeal_unlocked_achievements
-        if ((user.wemeal_unlocked_achievements || []).includes(a.id)) unlocked = true;
+        // The source of truth for the admin panel is the user's unlocked list in Firebase.
+        // It covers both auto-unlocked (synced by the app) and manually explicitly granted.
+        let unlocked = unlockedList.includes(a.id);
 
-        // If explicitly revoked by admin, it is NOT unlocked
+        // If explicitly revoked, ensure it's locked (failsafe)
         if (revoked.includes(a.id)) unlocked = false;
 
         if (unlocked) totalUnlockedCount++;

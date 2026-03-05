@@ -4,14 +4,19 @@
 
 import { app, auth, db } from './firebase-config.js';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-import { doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs, increment, arrayUnion, arrayRemove, query, where } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-functions.js";
 
 // Expose Firebase Functions helpers used by script.js checkout flow.
 const functions = getFunctions(app, "us-central1");
+window.db = db; // Expose Firestore db for use in script.js (e.g. milestone codes)
+window.firebaseDb = db; // Alias used by admin.js
 window.firebaseFunctions = {
-    httpsCallable: (name) => httpsCallable(functions, name)
+    httpsCallable: (name) => httpsCallable(functions, name),
+    doc, getDoc, setDoc, updateDoc, collection, getDocs, increment, arrayUnion, arrayRemove, query, where
 };
+
+
 
 function isLikelyImageSource(value) {
     if (typeof value !== 'string') return false;
@@ -44,6 +49,10 @@ onAuthStateChanged(auth, async (user) => {
         // Fetch User Data from Firestore
         await loadUserData(user.uid);
 
+        // Mark as loaded and notify script.js
+        window.isCloudDataLoaded = true;
+        window.dispatchEvent(new CustomEvent('cloud-data-loaded'));
+
         // Check Onboarding AFTER data is loaded
         if (typeof checkOnboarding === 'function') checkOnboarding();
 
@@ -64,30 +73,31 @@ onAuthStateChanged(auth, async (user) => {
         await loadUserData(user.uid);
 
         // Push local history / favorites if they exist (Migration)
-        await syncLocalDataToCloud(user.uid);
+        // Note: Avoid eager syncLocalDataToCloud on every load to prevent overwriting cloud with stale local cache
+        // await syncLocalDataToCloud(user.uid); 
 
         // Remote Logout Listener
         const { onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
         if (window.userDocListener) window.userDocListener(); // Clear old
         window.userDocListener = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (!docSnap.exists()) return;
+            const cloudData = docSnap.data();
+
+            // 1. Session check for remote logout
             const localProfileRaw = localStorage.getItem('wemeal_profile');
-            if (!localProfileRaw) {
-                console.log("ℹ️ No local profile yet, skipping session check");
+            const localProfile = localProfileRaw ? JSON.parse(localProfileRaw) : null;
+            const localSessionVersion = localProfile?.sessionVersion || 0;
+            const cloudSessionVersion = cloudData.sessionVersion || 0;
+
+            if (localSessionVersion > 0 && cloudSessionVersion > localSessionVersion) {
+                console.log("🚨 REMOTE LOGOUT TRIGGERED");
+                window.dispatchEvent(new CustomEvent('auth-logout-request'));
                 return;
             }
 
-            const localProfile = JSON.parse(localProfileRaw);
-            const localSessionVersion = localProfile.sessionVersion || 0;
-            const cloudData = docSnap.data();
-            const cloudSessionVersion = cloudData ? (cloudData.sessionVersion || 0) : 0;
-
-            console.log(`🔍 Session Check: Local=${localSessionVersion}, Cloud=${cloudSessionVersion}`);
-
-            // Only force logout if cloud version is strictly newer.
-            if (localSessionVersion > 0 && cloudSessionVersion > localSessionVersion) {
-                console.log("🚨 REMOTE LOGOUT TRIGGERED: Cloud version is newer than local.");
-                window.dispatchEvent(new CustomEvent('auth-logout-request'));
-            }
+            // 2. Real-time update of app state (silently, without triggering a re-sync)
+            console.log("☁️ Real-time cloud update received");
+            applyCloudDataToLocalState(cloudData);
         });
 
     } else {
@@ -223,121 +233,233 @@ async function loadUserData(uid) {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            const data = docSnap.data();
-
-            // 1. Sync Preferences
-            if (data.preferences) {
-                localStorage.setItem('wemeal_diabetic', JSON.stringify(data.preferences.diabetic || false));
-                localStorage.setItem('wemeal_endo', JSON.stringify(data.preferences.endo || false));
-                localStorage.setItem('wemeal_vegetarian', JSON.stringify(data.preferences.vegetarian || false));
-                localStorage.setItem('wemeal_vegan', JSON.stringify(data.preferences.vegan || false));
-
-                // Update global state if script.js is loaded
-                if (typeof state !== 'undefined') {
-                    state.isDiabeticMode = data.preferences.diabetic || false;
-                    state.isEndoMode = data.preferences.endo || false;
-                    state.isVegetarianMode = data.preferences.vegetarian || false;
-                    state.isVeganMode = data.preferences.vegan || false;
-                }
-            }
-
-            // 2. Sync Favorites (including empty arrays, to avoid stale local data)
-            if (data.favorites !== undefined) {
-                const favorites = Array.isArray(data.favorites) ? data.favorites : [];
-                localStorage.setItem('wemeal_favorites', JSON.stringify(favorites));
-                if (typeof state !== 'undefined') state.favorites = favorites;
-            }
-
-            // 3. Sync History (including empty arrays, to avoid stale local data)
-            if (data.history !== undefined) {
-                const history = Array.isArray(data.history) ? data.history : [];
-                localStorage.setItem('wemeal_history', JSON.stringify(history));
-                if (typeof state !== 'undefined') state.history = history;
-            }
-
-            // 4. Sync Shopping List — always overwrite from Firestore (even empty) to avoid stale data from previous accounts
-            if (data.shoppingList !== undefined) {
-                const list = Array.isArray(data.shoppingList) ? data.shoppingList : [];
-                localStorage.setItem('wemeal_shopping_list', JSON.stringify(list));
-                if (typeof state !== 'undefined') state.shoppingList = list;
-            }
-
-            // 5. Sync Profile
-            if (data.profile && typeof data.profile === 'object') {
-                const currentLocalProfile = JSON.parse(localStorage.getItem('wemeal_profile') || 'null');
-                const cloudProfile = data.profile;
-
-                const cloudName = typeof cloudProfile.name === 'string' ? cloudProfile.name.trim() : '';
-                const localName = typeof currentLocalProfile?.name === 'string' ? currentLocalProfile.name.trim() : '';
-                const safeName = cloudName || localName || 'Gourmet';
-
-                const cloudAvatar = typeof cloudProfile.avatar === 'string' ? cloudProfile.avatar.trim() : '';
-                const cloudAvatarEmoji = typeof cloudProfile.avatarEmoji === 'string' ? cloudProfile.avatarEmoji.trim() : '';
-                const localAvatarEmoji = typeof currentLocalProfile?.avatarEmoji === 'string' ? currentLocalProfile.avatarEmoji.trim() : '';
-
-                let safeAvatar = null;
-                let safeAvatarEmoji = '👤';
-
-                if (cloudAvatar) {
-                    if (isLikelyImageSource(cloudAvatar)) {
-                        safeAvatar = cloudAvatar;
-                    } else {
-                        safeAvatarEmoji = cloudAvatar;
-                    }
-                } else if (cloudAvatarEmoji) {
-                    safeAvatarEmoji = cloudAvatarEmoji;
-                } else if (localAvatarEmoji) {
-                    safeAvatarEmoji = localAvatarEmoji;
-                }
-
-                const profile = {
-                    ...cloudProfile,
-                    name: safeName,
-                    avatar: safeAvatar,
-                    avatarEmoji: safeAvatarEmoji,
-                    sessionVersion: data.sessionVersion || 0
-                };
-                localStorage.setItem('wemeal_profile', JSON.stringify(profile));
-                if (typeof state !== 'undefined') state.userProfile = profile;
-            }
-
-            // 6. Sync Premium State
-            if (typeof state !== 'undefined') {
-                state.isPremium = data.isPremium || false;
-                localStorage.setItem('wemeal_is_premium', JSON.stringify(state.isPremium));
-
-                if (data.premiumUntil) {
-                    // Convert Firestore Timestamp to ms
-                    state.premiumUntil = data.premiumUntil.seconds ? data.premiumUntil.seconds * 1000 : data.premiumUntil;
-                    localStorage.setItem('wemeal_premium_until', state.premiumUntil);
-                } else {
-                    state.premiumUntil = null;
-                    localStorage.removeItem('wemeal_premium_until');
-                }
-
-                if (data.freeSurpriseRemaining !== undefined) {
-                    state.freeSurpriseRemaining = data.freeSurpriseRemaining;
-                    localStorage.setItem('wemeal_free_surprises', state.freeSurpriseRemaining);
-                }
-            }
-
-            // Refresh UI visually
-            if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
-            if (typeof updateProfileModeBadges === 'function') updateProfileModeBadges();
-            if (typeof updateFreeLimitsUI === 'function') updateFreeLimitsUI();
-            if (typeof renderShoppingList === 'function') renderShoppingList();
-            if (typeof updateStats === 'function') updateStats();
-            if (typeof initializeHome === 'function') initializeHome();
+            applyCloudDataToLocalState(docSnap.data());
         }
+
+        // Load gift history
+        try {
+            const { query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+            // Sorting locally to avoid requiring a composite index in Firestore
+            const q = query(collection(db, "gift_codes"), where("buyerId", "==", uid));
+            const querySnapshot = await getDocs(q);
+            const gifts = [];
+            querySnapshot.forEach((doc) => {
+                gifts.push(doc.data());
+            });
+            // Sort locally descending
+            gifts.sort((a, b) => {
+                let d1 = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0;
+                let d2 = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0;
+                return d2 - d1;
+            });
+
+            if (typeof window.renderGiftHistory === 'function') {
+                window.renderGiftHistory(gifts);
+            }
+        } catch (err) {
+            console.error("Error loading gift history:", err);
+            // Ignore index errors silently if they haven't been created yet
+            if (typeof window.renderGiftHistory === 'function') window.renderGiftHistory([]);
+        }
+
     } catch (error) {
         console.error("Error loading user data:", error);
     }
 }
 
+function applyCloudDataToLocalState(data) {
+    if (typeof window.state === 'undefined') {
+        console.warn("⚠️ window.state not found. Retrying in 1s...");
+        setTimeout(() => applyCloudDataToLocalState(data), 1000);
+        return;
+    }
+
+    const state = window.state;
+
+    // 1. Sync Preferences
+    if (data.preferences) {
+        // For boolean toggles, local 'true' should not be overwritten by cloud 'false'
+        // (prevents race condition where stale cloud data resets a toggle the user just enabled)
+        const updatePref = (key, val, stateKey) => {
+            if (val === undefined) return;
+            // If local is true and cloud is false, keep local (user just toggled ON)
+            if (state[stateKey] === true && val === false) return;
+            if (state[stateKey] !== val) {
+                localStorage.setItem(key, JSON.stringify(val));
+                state[stateKey] = val;
+            }
+        };
+        updatePref('wemeal_diabetic', data.preferences.diabetic, 'isDiabeticMode');
+        updatePref('wemeal_endo', data.preferences.endo, 'isEndoMode');
+        updatePref('wemeal_vegetarian', data.preferences.vegetarian, 'isVegetarianMode');
+        updatePref('wemeal_vegan', data.preferences.vegan, 'isVeganMode');
+        updatePref('wemeal_gluten_free', data.preferences.glutenFree, 'isGlutenFreeMode');
+    }
+
+    // 2. Sync Favorites
+    if (data.favorites !== undefined && Array.isArray(data.favorites)) {
+        if (JSON.stringify(data.favorites) !== JSON.stringify(state.favorites)) {
+            state.favorites = data.favorites;
+            localStorage.setItem('wemeal_favorites', JSON.stringify(state.favorites));
+        }
+    }
+
+    // 3. Sync History
+    if (data.history !== undefined && Array.isArray(data.history)) {
+        if (JSON.stringify(data.history) !== JSON.stringify(state.history)) {
+            state.history = data.history;
+            localStorage.setItem('wemeal_history', JSON.stringify(state.history));
+        }
+    }
+
+    // 4. Sync Shopping List
+    if (data.shoppingList !== undefined && Array.isArray(data.shoppingList)) {
+        if (JSON.stringify(data.shoppingList) !== JSON.stringify(state.shoppingList)) {
+            state.shoppingList = data.shoppingList;
+            localStorage.setItem('wemeal_shopping_list', JSON.stringify(state.shoppingList));
+        }
+    }
+
+    // 5. Sync Custom Recipes
+    if (data.customRecipes !== undefined && Array.isArray(data.customRecipes)) {
+        if (JSON.stringify(data.customRecipes) !== JSON.stringify(state.customRecipes)) {
+            state.customRecipes = data.customRecipes;
+            localStorage.setItem('wemeal_custom_recipes', JSON.stringify(state.customRecipes));
+        }
+    }
+
+    if (data.isPremium !== undefined && state.isPremium !== data.isPremium) {
+        state.isPremium = data.isPremium;
+        localStorage.setItem('wemeal_is_premium', JSON.stringify(state.isPremium));
+    }
+
+    if (data.wemeal_unlocked_achievements !== undefined && Array.isArray(data.wemeal_unlocked_achievements)) {
+        const localAch = JSON.parse(localStorage.getItem('wemeal_unlocked_achievements') || '[]');
+        if (JSON.stringify(data.wemeal_unlocked_achievements) !== JSON.stringify(localAch)) {
+            localStorage.setItem('wemeal_unlocked_achievements', JSON.stringify(data.wemeal_unlocked_achievements));
+
+            // Also update processed list to avoid double notifications for things already in cloud
+            const processed = JSON.parse(localStorage.getItem('wemeal_processed_achievements') || '[]');
+            const newProcessed = Array.from(new Set([...processed, ...data.wemeal_unlocked_achievements]));
+            localStorage.setItem('wemeal_processed_achievements', JSON.stringify(newProcessed));
+
+            // Force immediate UI update if updateStats exists
+            if (typeof updateStats === 'function') updateStats();
+        }
+    }
+
+    if (data.wemeal_revoked_achievements !== undefined && Array.isArray(data.wemeal_revoked_achievements)) {
+        const localRev = JSON.parse(localStorage.getItem('wemeal_revoked_achievements') || '[]');
+        if (JSON.stringify(data.wemeal_revoked_achievements) !== JSON.stringify(localRev)) {
+            localStorage.setItem('wemeal_revoked_achievements', JSON.stringify(data.wemeal_revoked_achievements));
+            if (typeof updateStats === 'function') updateStats();
+        }
+    }
+
+    if (data.wemeal_milestone_tier !== undefined) {
+        localStorage.setItem('wemeal_milestone_tier', data.wemeal_milestone_tier);
+    }
+
+    if (data.premiumUntil !== undefined) {
+        const cloudUntil = data.premiumUntil?.seconds ? data.premiumUntil.seconds * 1000 : data.premiumUntil;
+        if (state.premiumUntil !== cloudUntil) {
+            state.premiumUntil = cloudUntil;
+            if (state.premiumUntil) localStorage.setItem('wemeal_premium_until', state.premiumUntil);
+            else localStorage.removeItem('wemeal_premium_until');
+        }
+    }
+
+    if (data.freeSurpriseRemaining !== undefined && state.freeSurpriseRemaining !== data.freeSurpriseRemaining) {
+        state.freeSurpriseRemaining = data.freeSurpriseRemaining;
+        localStorage.setItem('wemeal_free_surprises', state.freeSurpriseRemaining);
+    }
+
+    // 7. Sync Profile
+    if (data.profile && typeof data.profile === 'object') {
+        const currentLocalProfile = JSON.parse(localStorage.getItem('wemeal_profile') || 'null');
+        const cloudProfile = data.profile;
+
+        const cloudName = typeof cloudProfile.name === 'string' ? cloudProfile.name.trim() : '';
+        const safeName = cloudName || currentLocalProfile?.name || 'Gourmet';
+
+        const cloudAvatar = typeof cloudProfile.avatar === 'string' ? cloudProfile.avatar.trim() : '';
+        const cloudAvatarEmoji = typeof cloudProfile.avatarEmoji === 'string' ? cloudProfile.avatarEmoji.trim() : '';
+
+        let safeAvatar = null;
+        let safeAvatarEmoji = '👤';
+
+        if (cloudAvatar) {
+            if (isLikelyImageSource(cloudAvatar)) {
+                safeAvatar = cloudAvatar;
+            } else {
+                safeAvatarEmoji = cloudAvatar;
+            }
+        } else if (cloudAvatarEmoji) {
+            safeAvatarEmoji = cloudAvatarEmoji;
+        } else if (currentLocalProfile?.avatarEmoji) {
+            safeAvatarEmoji = currentLocalProfile.avatarEmoji;
+        }
+
+        const profile = {
+            ...cloudProfile,
+            name: safeName,
+            avatar: safeAvatar,
+            avatarEmoji: safeAvatarEmoji,
+            sessionVersion: data.sessionVersion || 0
+        };
+
+        if (JSON.stringify(profile) !== JSON.stringify(currentLocalProfile)) {
+            localStorage.setItem('wemeal_profile', JSON.stringify(profile));
+            state.userProfile = profile;
+        }
+    }
+
+    // Refresh UI visually
+    if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
+    if (typeof updateProfileModeBadges === 'function') updateProfileModeBadges();
+    if (typeof updateFreeLimitsUI === 'function') updateFreeLimitsUI();
+    if (typeof renderShoppingList === 'function') renderShoppingList();
+    if (typeof updateStats === 'function') updateStats();
+    if (typeof requestLocation === 'function') requestLocation();
+    if (typeof initializeHome === 'function') initializeHome();
+    if (typeof renderFavorites === 'function') renderFavorites(document.getElementById('show-my-versions-btn')?.classList.contains('active'));
+
+    // Refresh toggle checkboxes and info cards to match synced state
+    if (typeof state !== 'undefined') {
+        const setToggle = (id, val) => { const el = document.getElementById(id); if (el) el.checked = val; };
+        setToggle('diabetic-toggle', state.isDiabeticMode);
+        setToggle('endo-toggle', state.isEndoMode);
+        setToggle('vegetarian-toggle', state.isVegetarianMode);
+        setToggle('vegan-toggle', state.isVeganMode);
+        setToggle('gluten-free-toggle', state.isGlutenFreeMode);
+
+        // Refresh info card visibility
+        const showHide = (id, show) => { const el = document.getElementById(id); if (el) { if (show) el.classList.remove('hidden'); else el.classList.add('hidden'); } };
+        showHide('diabetic-info', state.isDiabeticMode);
+        showHide('endo-info', state.isEndoMode);
+        showHide('vegetarian-info', state.isVegetarianMode);
+        showHide('vegan-info', state.isVeganMode);
+        showHide('gluten-free-info', state.isGlutenFreeMode);
+
+        // Refresh sugar tracker for diabetic mode
+        if (typeof updateSugarTracker === 'function') updateSugarTracker();
+    }
+
+    // Always trigger a UI refresh after cloud data is applied
+    if (typeof updateStats === 'function') updateStats();
+    if (typeof renderAchievements === 'function') renderAchievements();
+}
+
 // Push local data to Firetore
 async function syncLocalDataToCloud(uid) {
     try {
-        if (typeof state === 'undefined') return;
+        if (typeof window.state === 'undefined') return;
+        const state = window.state;
+
+        if (!window.isCloudDataLoaded) {
+            console.warn("⚠️ syncLocalDataToCloud: Blocked. Data not fully loaded from cloud yet.");
+            return;
+        }
 
         const docRef = doc(db, "users", uid);
 
@@ -349,6 +471,17 @@ async function syncLocalDataToCloud(uid) {
         updates["preferences.endo"] = state.isEndoMode;
         updates["preferences.vegetarian"] = state.isVegetarianMode;
         updates["preferences.vegan"] = state.isVeganMode;
+        updates["preferences.glutenFree"] = state.isGlutenFreeMode;
+
+        // Gamification Sync
+        const storedUnlocked = JSON.parse(localStorage.getItem('wemeal_unlocked_achievements') || '[]');
+        if (storedUnlocked.length > 0) {
+            updates.wemeal_unlocked_achievements = storedUnlocked;
+        }
+        const storedMilestone = parseInt(localStorage.getItem('wemeal_milestone_tier') || '0');
+        if (storedMilestone > 0) {
+            updates.wemeal_milestone_tier = storedMilestone;
+        }
 
         // Always sync arrays, including empty arrays, so clear actions persist.
         if (Array.isArray(state.favorites)) {
@@ -363,6 +496,10 @@ async function syncLocalDataToCloud(uid) {
         // operations are persisted to Firestore and don't reappear on refresh.
         if (Array.isArray(state.shoppingList)) {
             updates.shoppingList = state.shoppingList;
+        }
+
+        if (Array.isArray(state.customRecipes)) {
+            updates.customRecipes = state.customRecipes;
         }
 
         if (state.userProfile) {
@@ -384,6 +521,16 @@ async function syncLocalDataToCloud(uid) {
         // Sync Premium State (e.g., Surprise Me deductions)
         if (state.freeSurpriseRemaining !== undefined) {
             updates.freeSurpriseRemaining = state.freeSurpriseRemaining;
+        }
+
+        // New: Sync Achievements to Cloud
+        const localAch = JSON.parse(localStorage.getItem('wemeal_unlocked_achievements') || '[]');
+        if (localAch.length > 0) {
+            updates.wemeal_unlocked_achievements = localAch;
+        }
+        const localTier = parseInt(localStorage.getItem('wemeal_milestone_tier') || '0');
+        if (localTier > 0) {
+            updates.wemeal_milestone_tier = localTier;
         }
 
         if (Object.keys(updates).length > 0) {
@@ -410,7 +557,18 @@ window.addEventListener('validate-promo-code', async (e) => {
 
         if (docSnap.exists() && docSnap.data().isActive) {
             const data = docSnap.data();
-            responseElement.textContent = "Code promo Stripe détecté !";
+
+            // Check usage limits (read-only check)
+            if (data.maxUses && data.maxUses > 0) {
+                const used = data.totalUses || 0;
+                if (used >= data.maxUses) {
+                    responseElement.textContent = "Ce code promo a atteint sa limite d'utilisation.";
+                    responseElement.style.color = 'var(--danger)';
+                    return;
+                }
+            }
+
+            responseElement.textContent = "Code promo appliqué !";
             responseElement.style.color = 'var(--success)';
 
             window.appliedPromoCode = code;
@@ -515,3 +673,72 @@ export async function loadRecipesFromFirebase() {
         }));
     }
 })();
+
+// ============================================
+// STRIPE CHECKOUT INTEGRATION (Cloud Functions)
+// ============================================
+
+window.addEventListener('init-stripe-checkout', async (e) => {
+    const { plan, promo } = e.detail;
+    try {
+        const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
+        const result = await createCheckoutSession({
+            plan: plan,
+            origin: window.location.origin,
+            stripePromoId: (promo && window.appliedStripePromoId) ? window.appliedStripePromoId : null,
+            discount: promo ? (window.currentDiscountPercent || 0) : 0
+        });
+
+        if (result.data && result.data.url) {
+            window.location.href = result.data.url;
+        } else {
+            console.error("No URL returned from createCheckoutSession");
+            if (typeof showToast === 'function') showToast("Erreur lors de la création de la session Stripe.");
+        }
+    } catch (error) {
+        console.error("Stripe Checkout Error:", error);
+        if (typeof showToast === 'function') showToast("Service de paiement temporairement indisponible.");
+    }
+});
+
+window.addEventListener('init-gift-checkout', async (e) => {
+    const { plan, promo } = e.detail;
+    try {
+        const createGiftSession = httpsCallable(functions, 'createGiftCheckoutSession');
+        const result = await createGiftSession({
+            plan: plan,
+            origin: window.location.origin,
+            stripePromoId: (promo && window.appliedStripePromoId) ? window.appliedStripePromoId : null,
+            discount: promo ? (window.currentDiscountPercent || 0) : 0
+        });
+
+        if (result.data && result.data.url) {
+            window.location.href = result.data.url;
+        } else {
+            console.error("No URL returned from createGiftCheckoutSession");
+            if (typeof showToast === 'function') showToast("Erreur lors de la création de la session Cadeau.");
+        }
+    } catch (error) {
+        console.error("Gift Checkout Error:", error);
+        if (typeof showToast === 'function') showToast("Service de cadeau temporairement indisponible.");
+    }
+});
+
+window.addEventListener('fetch-latest-gift-code', async () => {
+    try {
+        const getLatestGiftCode = httpsCallable(functions, 'getLatestGiftCode');
+        const result = await getLatestGiftCode();
+        if (result.data && result.data.code) {
+            const codeEl = document.getElementById('gift-card-code');
+            if (codeEl) codeEl.textContent = result.data.code;
+        } else {
+            console.warn("No recent gift code found.");
+            const codeEl = document.getElementById('gift-card-code');
+            if (codeEl) codeEl.textContent = "Non trouvé";
+        }
+    } catch (error) {
+        console.error("Error fetching latest gift code:", error);
+        const codeEl = document.getElementById('gift-card-code');
+        if (codeEl) codeEl.textContent = "Erreur";
+    }
+});

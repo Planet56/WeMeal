@@ -5237,16 +5237,19 @@ function renderAchievements() {
   // — Merge and respect Admin Revocations —
   const storedUnlocked = JSON.parse(localStorage.getItem('wemeal_unlocked_achievements') || '[]');
   const processed = JSON.parse(localStorage.getItem('wemeal_processed_achievements') || '[]');
+  const revoked = JSON.parse(localStorage.getItem('wemeal_revoked_achievements') || '[]');
 
   achievements.forEach(a => {
     const meetsCriteria = a.unlocked; // Calculated from history/favs etc.
     const hasBeenProcessed = processed.includes(a.id);
     const isInCloud = storedUnlocked.includes(a.id);
+    const isRevoked = revoked.includes(a.id);
 
     // Achievement is UNLOCKED if:
     // It's in the cloud list (Admin grant or previously synced)
     // OR it meets criteria AND hasn't been processed (first-time auto unlock)
-    if (isInCloud || (meetsCriteria && !hasBeenProcessed)) {
+    // AND it has not been revoked explicitly by an admin
+    if (!isRevoked && (isInCloud || (meetsCriteria && !hasBeenProcessed))) {
       a.unlocked = true;
     } else {
       a.unlocked = false;
