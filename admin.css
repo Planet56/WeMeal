@@ -462,15 +462,22 @@ body::after {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 10px 20px;
-    border-radius: var(--radius-md);
+    padding: 12px 24px;
+    border-radius: 100px;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-decoration: none;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 8px 32px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-large {
@@ -800,15 +807,17 @@ body::after {
 input,
 select,
 textarea {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-main);
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     width: 100%;
+    caret-color: #c4b5fd;
+    position: relative;
 }
 
 input:focus,
@@ -816,8 +825,11 @@ select:focus,
 textarea:focus {
     outline: none;
     border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow:
+        inset 4px 0 12px -2px rgba(139, 92, 246, 0.5),
+        0 0 0 2px rgba(99, 102, 241, 0.2),
+        0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 label {
@@ -872,7 +884,8 @@ label {
 
 /* Selected State for Checkbox Buttons */
 .tag-btn:has(input:checked),
-.tag.selected {
+.tag.selected,
+.tag.active {
     background: rgba(99, 102, 241, 0.2);
     border-color: var(--primary);
     color: white;
@@ -1093,7 +1106,7 @@ textarea.step-text {
     margin-top: 8px;
 }
 
-.tag {
+.tag-container .tag {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1581,6 +1594,8 @@ textarea.step-text {
 .user-row:hover {
     border-color: rgba(99, 102, 241, 0.3);
     background: rgba(99, 102, 241, 0.05);
+    cursor: pointer;
+    transform: translateY(-2px);
 }
 
 .user-row.banned-row {
@@ -1829,4 +1844,492 @@ textarea.step-text {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ============================================
+   Timer Picker (unified for recipe time + step timers)
+   ============================================ */
+.timer-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    padding: 6px 12px;
+}
+
+.timer-picker-label {
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+.timer-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-main);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.timer-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.timer-btn:active {
+    transform: scale(0.95);
+}
+
+.timer-val {
+    width: 56px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.timer-val::-webkit-inner-spin-button,
+.timer-val::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.timer-val:focus {
+    outline: none;
+}
+
+.timer-picker-unit {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+/* Step rows with timer pickers */
+.step-row .timer-picker {
+    margin-top: 8px;
+    padding: 4px 10px;
+}
+
+.step-row .timer-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 0.9rem;
+}
+
+.step-row .timer-val {
+    width: 50px;
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   User Details Panel — Redesigned
+   ============================================ */
+
+.ud-panel {
+    background: linear-gradient(160deg, #0d1117 0%, #161b22 60%, #1a2030 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    width: min(660px, 96vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+/* Header */
+.ud-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 24px 24px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    position: relative;
+}
+
+.ud-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ud-close-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.ud-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.ud-avatar-ph {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary, #6366f1), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ud-rank-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.ud-header-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ud-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ud-name {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ud-badges-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ud-email-text {
+    margin: 4px 0 8px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.ud-premium-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Tabs */
+.ud-tabs {
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.ud-tab {
+    padding: 12px 18px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.ud-tab.active {
+    color: #fff;
+    border-bottom-color: var(--primary, #6366f1);
+}
+
+.ud-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Body / Panes */
+.ud-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+}
+
+.ud-pane {
+    display: none;
+}
+
+.ud-pane.active {
+    display: block;
+}
+
+/* Section title with inline action button */
+.ud-section-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Reset buttons */
+.ud-reset-btn {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.ud-reset-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.ud-reset-btn.danger {
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.07);
+}
+
+.ud-reset-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.18);
+}
+
+/* List box */
+.ud-list-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.ud-muted {
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+}
+
+.ud-simple-list {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+
+.ud-simple-list li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.ud-count-chip {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.ud-fav-ids {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    word-break: break-all;
+}
+
+/* Quick Actions Grid */
+.ud-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+}
+
+.ud-action-btn {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    text-align: left;
+}
+
+.ud-action-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
+}
+
+.ud-action-btn.danger {
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.07);
+}
+
+.ud-action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.18);
+}
+
+/* Achievements Grid */
+.ud-achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.ud-ach-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    opacity: 0.5;
+    transition: opacity 0.2s, border-color 0.2s;
+}
+
+.ud-ach-card.unlocked {
+    opacity: 1;
+    border-color: rgba(99, 102, 241, 0.35);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.ud-ach-icon {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+}
+
+.ud-ach-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+}
+
+.ud-ach-status {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.ud-ach-summary {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+}
+
+/* Modes Grid */
+.ud-modes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ud-mode-chip {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ud-mode-chip.active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+
+.ud-mode-chip:hover {
+    opacity: 0.85;
+}
+
+/* Footer */
+
+/* Achievements Grid Interactive */
+.ud-ach-card.interactive {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ud-ach-card.interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* History List Expandable */
+.ud-history-list {
+    display: none;
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px 15px !important;
+    border: 1px solid var(--glass-border);
+}
+
+.ud-history-list.open {
+    display: block;
 }

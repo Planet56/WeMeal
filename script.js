@@ -3732,12 +3732,28 @@ window.renderGiftHistory = function (gifts) {
     const isUsed = g.status === 'used';
     const uiStatus = isUsed ? "Utilisé" : "Non utilisé";
     const statusClass = isUsed ? "used" : "unused";
-    const planName = g.plan === 'monthly' ? "1 Mois" : "1 An";
+
+    let planName = g.plan === 'monthly' ? "1 Mois" : (g.plan === 'weekly' ? "1 Semaine" : "1 An");
+    let styleClass = '';
+    let iconHTML = '🎁';
+
+    if (g.isMilestone) {
+      planName += " 🏆";
+      if (g.tier === 2) {
+        styleClass = 'style="background: linear-gradient(135deg, rgba(192,192,192,0.1), rgba(192,192,192,0.05)); border: 1px solid rgba(192,192,192,0.2);"';
+        iconHTML = '🥈';
+      } else if (g.tier === 3) {
+        styleClass = 'style="background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.05)); border: 1px solid rgba(255,215,0,0.2);"';
+        iconHTML = '🏆';
+      } else { // Default for milestone if not tier 2 or 3
+        iconHTML = '🏆';
+      }
+    }
 
     return `
-      <div class="gift-history-item">
+      <div class="gift-history-item" ${styleClass}>
         <div class="gift-history-details">
-          <div class="gift-history-code">${g.code || 'MEALXXXXX'}</div>
+          <div class="gift-history-code" ${g.isMilestone ? (g.tier === 2 ? 'style="color: #c0c0c0;"' : 'style="color: #ffd700;"') : ''}>${iconHTML} ${g.code || 'MEALXXXXX'}</div>
           <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Acheté le ${d} • Pass ${planName}</div>
           <div class="gift-history-status ${statusClass}" style="font-size: 0.8rem; margin-top: 4px; font-weight: 500;">
             ${uiStatus}

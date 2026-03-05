@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="animation.css">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 
 <body>
@@ -31,7 +34,9 @@
 
       <!-- STEP 1: Profile & Regimes -->
       <div class="wizard-slide active" id="wizard-step-1">
-        <h1 class="onboarding-title">Bienvenue sur WeMeal</h1>
+        <h1 class="onboarding-title"><img src="logo.svg" alt="logo"
+            style="height: 2.8rem; vertical-align: middle; margin-right: -6px; margin-top: -6px;">Bienvenue sur WeMeal
+        </h1>
         <p class="onboarding-subtitle">Créons votre profil gourmand</p>
 
         <div class="onboarding-avatar-picker" id="avatar-picker">
@@ -139,11 +144,8 @@
     <div id="page-home" class="page active">
       <header class="header">
         <h1 class="logo">
-          <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
+          <img class="logo-icon" src="logo.svg" alt="WeMeal Logo" width="72" height="72"
+            style="vertical-align: middle; margin-right: -20px;">
           WeMeal
         </h1>
       </header>
@@ -181,38 +183,93 @@
             </svg>
             <span id="location-text">Localisation...</span>
           </div>
+          <div class="weather-season" id="weather-season">
+            <span id="season-icon-w">🌸</span>
+            <span id="season-label-w">Printemps</span>
+          </div>
         </div>
       </div>
 
 
       <!-- Recommended Recipes -->
       <section>
-        <h2 class="section-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-          </svg>
-          Recettes du jour
-        </h2>
-        <div class="filter-chips-container glass"
-          style="margin-bottom: var(--space-md); padding: var(--space-sm); overflow-x: auto; display: flex; gap: var(--space-sm); border-radius: var(--radius-lg);">
-          <button class="filter-chip active" data-filter="all">Tout</button>
-          <button class="filter-chip" data-filter="vegetarian">Végétarien</button>
-          <button class="filter-chip" data-filter="vegan">Végétalien</button>
-          <button class="filter-chip" data-filter="gluten-free">Sans Gluten</button>
-          <button class="filter-chip" data-filter="low-gi">IG Bas</button>
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+          <h2 class="section-title" style="margin-bottom: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+            Recettes du jour
+          </h2>
+          <button id="btn-open-filters" class="btn btn-glass"
+            style="padding: 8px 12px; font-size: 0.85rem; border-radius: 20px;" onclick="openHomeFilters()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="margin-right: 4px; vertical-align: text-bottom;">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Filtrer
+          </button>
         </div>
-        <div class="recipes-grid" id="home-recipes"></div>
-      </section>
 
-      <!-- Quick Surprise Button -->
-      <button class="btn btn-primary" style="width: 100%; margin-top: var(--space-md);"
-        onclick="switchPage('surprise')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 2l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z" />
-        </svg>
-        <span>Surprends-moi !</span>
-      </button>
+        <div class="recipes-grid" id="home-recipes"></div>
+
+        <!-- Load More Button -->
+        <button id="home-load-more" class="btn btn-glass"
+          style="width: 100%; margin-top: var(--space-md); text-align: center; border: 1px dashed rgba(255,255,255,0.2);"
+          onclick="loadMoreHomeRecipes()">
+          Charger plus...
+        </button>
+
+        <!-- Home Filters Modal -->
+        <div id="home-filters-modal" class="modal-overlay hidden" style="z-index: 200;">
+          <div class="modal glass">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+              <h3 style="margin: 0; display:flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filtres
+              </h3>
+              <button class="paywall-close" onclick="closeHomeFilters()" style="position: static; margin-left: auto;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="filter-options-grid"
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: var(--space-md);">
+              <button class="filter-chip active" data-filter="all"
+                style="width: 100%; text-align: center;">Tout</button>
+              <button class="filter-chip" data-filter="vegetarian"
+                style="width: 100%; text-align: center;">Végétarien</button>
+              <button class="filter-chip" data-filter="vegan"
+                style="width: 100%; text-align: center;">Végétalien</button>
+              <button class="filter-chip" data-filter="gluten-free" style="width: 100%; text-align: center;">Sans
+                Gluten</button>
+              <button class="filter-chip" data-filter="low-gi" style="width: 100%; text-align: center;">IG Bas</button>
+            </div>
+
+            <div
+              style="margin-top: var(--space-md); border-top: 1px solid rgba(255,255,255,0.1); padding-top: var(--space-md);">
+              <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                <span>En dehors de mon régime</span>
+                <input type="checkbox" id="bypass-diet-filter" style="width: 20px; height: 20px;">
+              </label>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">
+                Affiche toutes les recettes, même celles non compatibles avec le régime défini dans "Moi".
+              </p>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: var(--space-lg);"
+              onclick="applyHomeFilters()">
+              Appliquer
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ============================================
@@ -241,7 +298,7 @@
         <!-- Glowing Search Bar Container -->
         <div class="surprise-search-container">
           <div class="surprise-glow"></div>
-          <div class="surprise-search-bar glass">
+          <div class="surprise-search-bar">
             <!-- Input Area -->
             <div class="surprise-input-wrapper">
               <span class="search-icon">🔍</span>
@@ -263,8 +320,32 @@
         <!-- Tags Container (for selected ingredients if logic supports it, keeping it hidden or minimal) -->
         <div id="surprise-tags" class="surprise-tags"></div>
 
-        <!-- Suggestion Chips -->
+        <!-- Category & Suggestion Chips -->
         <div class="suggestion-chips">
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Petit-déj'; document.getElementById('surprise-btn').click();">🥐
+            Petit-déj</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Déjeuner'; document.getElementById('surprise-btn').click();">🥗
+            Déjeuner</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Dîner'; document.getElementById('surprise-btn').click();">🍝
+            Dîner</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Dessert'; document.getElementById('surprise-btn').click();">🍰
+            Desserts</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Snack'; document.getElementById('surprise-btn').click();">🥜
+            Snacks</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Soupe'; document.getElementById('surprise-btn').click();">🍲
+            Soupes</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Salade'; document.getElementById('surprise-btn').click();">🥬
+            Salades</button>
+          <button class="suggestion-chip"
+            onclick="document.getElementById('surprise-ingredients').value='Apéritif'; document.getElementById('surprise-btn').click();">🧀
+            Apéritifs</button>
           <button class="suggestion-chip"
             onclick="document.getElementById('surprise-ingredients').value='Italien'; document.getElementById('surprise-btn').click();">🇮🇹
             Italien</button>
@@ -320,20 +401,35 @@
       </div>
     </div>
 
+
+
     <!-- ============================================
          FAVORITES PAGE
          ============================================ -->
     <div id="page-favorites" class="page">
-      <header class="header">
-        <h1 class="logo">
-          <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-          Mes Favoris
-        </h1>
-        <p id="favorites-limit-text"
-          style="font-size: 0.85rem; color: var(--primary); text-align: center; margin-top: 4px;"></p>
+      <div class="page-header" style="text-align: center; position: relative; margin-bottom: var(--space-md);">
+        <h2 style="margin: 0;">Mes Favoris</h2>
+        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 12px;">
+          <button class="btn btn-glass btn-sm" id="show-my-versions-btn">
+            ✨ Mes versions
+          </button>
+          <button class="btn btn-glass btn-sm" id="manage-favorites-btn">
+            ⚙️ Gérer
+          </button>
+        </div>
+      </div>
+
+      <div id="manage-favorites-controls" class="glass hidden"
+        style="margin-bottom: var(--space-md); padding: 12px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px;">
+        <span id="selected-count" style="font-size: 0.9rem;">0 sélectionnées</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-glass btn-sm" onclick="selectAllFavorites()">Tout</button>
+          <button class="btn btn-primary btn-sm" id="delete-selected-btn" style="background: #ef4444;"
+            onclick="deleteSelectedFavorites()">Supprimer</button>
+        </div>
+      </div>
+      <p id="favorites-limit-text"
+        style="font-size: 0.85rem; color: var(--primary); text-align: center; margin-top: 4px;"></p>
       </header>
 
       <div id="favorites-content">
@@ -365,6 +461,8 @@
         </h1>
       </header>
 
+      <button id="manage-shopping-btn" class="btn btn-glass btn-sm hidden"
+        style="margin-bottom: var(--space-md); align-self: flex-end;" onclick="toggleShoppingEdit()">Gérer</button>
       <div class="shopping-list-container glass" id="shopping-list-container">
         <!-- Empty State -->
         <div id="shopping-empty" class="favorites-empty">
@@ -387,7 +485,8 @@
         <!-- WeMeal+ Affiliate Section -->
         <div id="shopping-affiliates" class="hidden"
           style="margin-top: var(--space-xl); border-top: 1px solid rgba(255,255,255,0.1); padding-top: var(--space-md);">
-          <h3 style="font-size: 1rem; margin-bottom: var(--space-sm); text-align: center;">🛒 Faire mes courses en drive
+          <h3 style="font-size: 1rem; margin-bottom: var(--space-sm); text-align: center;">🛒 Faire mes courses en
+            drive
           </h3>
           <p
             style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-bottom: var(--space-md);">
@@ -498,6 +597,7 @@
             </svg>
           </div>
           <input type="file" id="profile-avatar-input" accept="image/*" style="display: none;">
+          <div id="profile-rank-badge" class="profile-rank-badge hidden"></div>
         </div>
         <div class="profile-info">
           <h2 class="profile-name" id="profile-name">Gourmet</h2>
@@ -523,6 +623,13 @@
           <div class="stat-label">Favoris</div>
         </div>
       </div>
+
+      <!-- Streak & Achievements -->
+      <section style="margin-top: var(--space-lg); width: 100%; max-width: 600px;">
+        <h2 class="section-title">🏆 Mes Trophées</h2>
+        <div id="streak-container"></div>
+        <div class="achievements-grid" id="achievements-grid"></div>
+      </section>
 
       <!-- Sugar Tracker (shown for diabetic users) -->
       <div id="sugar-tracker-section" class="sugar-tracker glass hidden">
@@ -599,10 +706,7 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <p id="gluten-free-active-text" class="hidden"
-          style="color: #f97316; font-size: 0.85rem; margin: -10px 0 10px 32px;">
-          Mode sans gluten activé
-        </p>
+
 
         <!-- Calorie Tracking Toggle -->
         <div class="settings-row">
@@ -620,7 +724,6 @@
         <!-- Theme Toggle -->
         <div class="settings-row settings-divider">
           <div class="settings-label">
-            <span id="theme-icon">🌙</span>
             <span>Thème Sombre</span>
           </div>
           <style>
@@ -802,6 +905,14 @@
         </div>
       </div>
 
+      <!-- Gift Premium Button (Visible for all, especially premium members) -->
+      <div class="settings-row" style="margin-top: var(--space-md); justify-content: center; border-bottom: none;">
+        <button class="btn btn-glass" onclick="showPremiumPaywall('profile_gift')"
+          style="width: 100%; color: var(--warning); border-color: rgba(245, 158, 11, 0.3);">
+          <span style="font-size: 1.1em; margin-right: 8px;">🎁</span> Offrir WeMeal+
+        </button>
+      </div>
+
       <div id="diabetic-info" class="diabetic-info-card glass hidden">
         <div class="diabetic-info-title">
           <span style="font-size: 1.5rem; margin-right: 8px;">🍬</span>
@@ -880,7 +991,8 @@
           Suivi masqué
         </div>
         <div class="diabetic-info-list" style="color: var(--text-secondary); margin-top: 8px;">
-          Le suivi des calories est désactivé. Vous ne verrez plus les compteurs de calories sur l'accueil et dans votre
+          Le suivi des calories est désactivé. Vous ne verrez plus les compteurs de calories sur l'accueil et dans
+          votre
           profil.
           <br><br>
           <button class="btn btn-primary" onclick="document.getElementById('calorie-info').classList.add('hidden')"
@@ -917,24 +1029,43 @@
         </div>
       </section>
 
-      <section style="margin-top: var(--space-lg);">
-        <h2 class="section-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
-          </svg>
-          Historique
-        </h2>
-        <div class="history-list glass" id="history-list">
-          <div class="favorites-empty" style="padding: var(--space-lg);">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)">
+      <!-- History + Gifts Side by Side -->
+      <div
+        style="display: flex; gap: var(--space-lg); margin-top: var(--space-lg); align-items: flex-start; flex-wrap: wrap;">
+
+        <!-- History Column -->
+        <section style="flex: 1; min-width: 280px;">
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path
-                d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+                d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
             </svg>
-            <p class="favorites-empty-text" style="margin-top: var(--space-md);">Aucune recette consultée</p>
+            Historique
+          </h2>
+          <div class="history-list glass" id="history-list">
+            <div class="favorites-empty" style="padding: var(--space-lg);">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)">
+                <path
+                  d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+              </svg>
+              <p class="favorites-empty-text" style="margin-top: var(--space-md);">Aucune recette consultée</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <!-- Gifts Column -->
+        <section style="flex: 1; min-width: 280px;" id="gift-history-section">
+          <h2 class="section-title">
+            <span style="font-size: 1.2rem; margin-right: 8px;">🎁</span>
+            Mes Cadeaux
+          </h2>
+          <div class="history-list glass" id="gift-history-list" style="padding: var(--space-md); text-align: center;">
+            <div class="spinner-small" style="display:inline-block;"></div>
+            <p style="color: var(--text-secondary); margin-top: 8px; font-size: 0.9rem;">Chargement...</p>
+          </div>
+        </section>
+
+      </div>
 
       <button id="delete-account-btn" class="btn delete-account-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -977,7 +1108,8 @@
 
       <div class="debug-section" style="margin-top: 20px;">
         <h3>🕵️ Inspecteur d'éléments</h3>
-        <p style="font-size: 0.8rem; color: var(--text-secondary);">Activez pour voir les IDs et classes au survol.</p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary);">Activez pour voir les IDs et classes au survol.
+        </p>
         <button id="btn-toggle-inspector" class="btn btn-primary" style="margin-top: 10px; width: 100%;"
           onclick="toggleDebugInspector()">Activer l'inspecteur</button>
       </div>
@@ -1045,6 +1177,66 @@
   <!-- ============================================
        LOADING OVERLAY
        ============================================ -->
+  <!-- ============================================
+       CHOICE MODAL (ORIGINAL VS CUSTOM)
+       ============================================ -->
+  <div id="version-choice-modal" class="modal-overlay hidden">
+    <div class="modal glass" style="max-width: 400px; text-align: center;">
+      <h2 style="margin-bottom: var(--space-md);">Quelle version ouvrir ?</h2>
+      <p style="color: var(--text-secondary); margin-bottom: var(--space-lg);">Vous avez une version personnalisée de
+        cette recette.</p>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button class="btn btn-primary" id="open-custom-version-btn" style="width: 100%;">
+          ✨ Ouvrir ma version
+        </button>
+        <button class="btn btn-standard" id="open-original-version-btn" style="width: 100%;">
+          📖 Version originale
+        </button>
+      </div>
+      <button class="btn btn-glass" style="width: 100%; margin-top: 12px; font-size: 0.8rem;"
+        id="cancel-version-btn">Plus tard</button>
+    </div>
+  </div>
+
+  <!-- ============================================
+       RECIPE EDIT MODE OVERLAY
+       ============================================ -->
+  <div id="recipe-edit-mode" class="page overlay">
+    <div class="recipe-detail-header">
+      <button class="recipe-detail-back" id="edit-back">×</button>
+      <h2 style="flex: 1;">Modifier la recette</h2>
+      <button class="btn btn-primary btn-sm" id="save-custom-recipe-btn">Enregistrer</button>
+    </div>
+
+    <div style="padding: var(--space-md); overflow-y: auto; height: calc(100% - 70px);">
+      <div class="glass" style="padding: var(--space-md); margin-bottom: var(--space-md); border-radius: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem;">Nom de la
+          recette</label>
+        <input type="text" id="edit-recipe-name" class="glass-input"
+          style="width: 100%; font-size: 1.2rem; font-weight: bold;">
+      </div>
+
+      <div class="glass" style="padding: var(--space-md); margin-bottom: var(--space-md); border-radius: 20px;">
+        <h3>Ingrédients</h3>
+        <div id="edit-ingredients-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+          <!-- Injected by JS -->
+        </div>
+        <button class="btn btn-glass btn-sm" style="margin-top: 15px; width: 100%;" id="add-edit-ingredient-btn">+
+          Ajouter un ingrédient</button>
+      </div>
+
+      <div class="glass" style="padding: var(--space-md); margin-bottom: var(--space-md); border-radius: 20px;">
+        <h3>Étapes de préparation</h3>
+        <div id="edit-steps-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+          <!-- Injected by JS -->
+        </div>
+        <button class="btn btn-glass btn-sm" style="margin-top: 15px; width: 100%;" id="add-edit-step-btn">+ Ajouter
+          une étape</button>
+      </div>
+    </div>
+  </div>
+
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-icon emoji-animate">👨‍🍳</div>
     <div class="loading-text">Le Chef réfléchit...</div>
@@ -1144,6 +1336,15 @@
         </svg>
       </button>
       <h2 style="flex: 1;">Détail recette</h2>
+      <button class="recipe-share-btn" id="recipe-share-btn" title="Partager">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      </button>
       <button class="recipe-favorite" style="position: static;" id="recipe-detail-favorite">
         <svg viewBox="0 0 24 24">
           <path
@@ -1209,6 +1410,26 @@
       </ul>
     </div>
 
+    <!-- Rating & Notes Section -->
+    <div class="recipe-detail-section glass" style="margin-top: var(--space-md);">
+      <h3>📝 Mon avis</h3>
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px;">
+        <span style="font-size: 0.9rem; color: var(--text-secondary);">Note :</span>
+        <div class="rating-stars" id="recipe-rating">
+          <button class="rating-star" data-star="1">⭐</button>
+          <button class="rating-star" data-star="2">⭐</button>
+          <button class="rating-star" data-star="3">⭐</button>
+          <button class="rating-star" data-star="4">⭐</button>
+          <button class="rating-star" data-star="5">⭐</button>
+        </div>
+      </div>
+      <div class="recipe-notes-section" style="margin-top: 12px;">
+        <textarea class="recipe-note-input" id="recipe-note-input"
+          placeholder="Ajouter une note personnelle... (ex: moins de sel, plus d'ail)"></textarea>
+        <button class="btn btn-glass btn-sm" id="save-note-btn" style="margin-top: 8px;">💾 Sauvegarder</button>
+      </div>
+    </div>
+
     <button class="btn btn-glass" style="width: 100%; margin-top: var(--space-md);" id="add-to-shopping-list-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -1222,6 +1443,16 @@
         <path d="M8 5v14l11-7z" />
       </svg>
       <span>Cuisiner !</span>
+    </button>
+
+    <button class="btn btn-glass"
+      style="width: 100%; margin-top: var(--space-md); color: #818cf8; border-color: #818cf8;"
+      id="create-my-version-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+      </svg>
+      <span>Créer ma version</span>
     </button>
 
     <button class="btn btn-glass"
@@ -1243,6 +1474,11 @@
           d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
       </svg>
       <span>Cooking Party</span>
+    </button>
+
+    <button class="btn btn-glass" id="delete-custom-btn"
+      style="width: 100%; margin-top: var(--space-md); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); display: none;">
+      🗑️ Supprimer ma version
     </button>
   </div>
 
@@ -1338,15 +1574,32 @@
        PREMIUM PAYWALL MODAL
        ============================================ -->
   <div id="premium-paywall-modal" class="modal-overlay hidden">
-    <div class="modal premium-card glass" style="max-height: 90vh; overflow-y: auto;">
+    <div class="modal premium-card glass">
       <button class="modal-close" id="close-paywall-btn">×</button>
 
       <!-- Checkout UI -->
       <div id="paywall-content">
         <div class="premium-header">
           <div class="premium-sparkles">✨</div>
-          <h2 class="premium-title">WeMeal+</h2>
+          <h2 class="premium-title"><img src="logo.svg" alt="logo"
+              style="height: 4rem; vertical-align: middle; margin-right: -10px; margin-top: -8px;">WeMeal+</h2>
           <p class="modal-text">Libérez tout le potentiel de votre assistant culinaire.</p>
+        </div>
+
+        <!-- Gift switch -->
+        <div class="gift-switch-container"
+          style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-md); margin-bottom: var(--space-md); border: 1px solid var(--glass-border);">
+          <label class="switch" style="margin-right: 12px; transform: scale(0.9);">
+            <input type="checkbox" id="gift-mode-toggle">
+            <span class="slider round"></span>
+          </label>
+          <span style="font-weight: 500;">🎁 C'est pour offrir</span>
+        </div>
+
+        <div id="gift-explanation"
+          style="display: none; font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: var(--space-md); padding: 0 10px;">
+          Un code unique sera généré après paiement. Vous pourrez télécharger une jolie carte cadeau et retrouver ce
+          code depuis votre onglet "Moi".
         </div>
 
         <div class="premium-features-grid">
@@ -1458,8 +1711,51 @@
         </div>
         <h3 class="premium-title" style="font-size: 1.8rem; margin-top: 10px;">Abonnement Activé</h3>
         <p class="modal-text">Vous êtes maintenant WeMeal+ !</p>
-        <button class="btn btn-primary" id="close-success-btn" style="margin-top: 30px; width:100%;">Commencer à
+        <button class="btn btn-primary" id="close-success-btn" onclick="hidePremiumPaywall()"
+          style="margin-top: 30px; width:100%;">Commencer à
           cuisiner</button>
+      </div>
+
+      <!-- Gift Success Animation UI -->
+      <div id="paywall-gift-success" class="hidden"
+        style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height: 400px;">
+        <div class="gift-animation-scene" style="width: 240px; height: 240px; position:relative; margin-bottom: 20px;">
+          <div class="gift-anim-wemeal-card">💳</div>
+          <div class="gift-anim-box">🎁</div>
+          <div class="gift-anim-truck">🚚</div>
+          <div class="gift-anim-check">✅</div>
+        </div>
+        <h3 class="premium-title" style="font-size: 1.8rem; margin-top: 10px;">Carte Cadeau Prête !</h3>
+        <p class="modal-text" style="margin-bottom: 20px;">Votre code a été généré avec succès.</p>
+        <button class="btn btn-primary" id="view-gift-card-btn" style="width:100%;">Voir ma carte cadeau</button>
+      </div>
+
+      <!-- Generated Gift Card UI -->
+      <div id="paywall-gift-card" class="hidden" style="display:flex; flex-direction:column; align-items:center;">
+        <h3 class="premium-title" style="font-size: 1.5rem; margin-bottom: 20px;">Voici votre cadeau !</h3>
+        <div id="downloadable-gift-card"
+          style="width: 320px; height: 200px; background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid rgba(255,165,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;">
+          <div
+            style="position: absolute; top: 15px; left: 15px; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 0;">
+            <img src="logo.svg" alt="WeMeal Logo" width="44" height="44" style="margin-right: -6px;">
+            WeMeal
+          </div>
+          <div style="position: absolute; top: 15px; right: 15px; font-size: 1.5rem;">🎁</div>
+          <div
+            style="margin-top: 20px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary);">
+            Pass <span id="gift-card-duration">1 AN</span></div>
+          <div id="gift-card-code"
+            style="font-size: 2rem; font-weight: bold; letter-spacing: 4px; margin-top: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+            MEALXXXXX</div>
+          <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); position: absolute; bottom: 15px;">Entrez ce
+            code sur Payer > Code Promo</div>
+        </div>
+        <button class="btn btn-primary" id="download-gift-card-btn"
+          style="width:100%; margin-top: 30px; background: linear-gradient(135deg, #f97316, #ea580c); border:none;">
+          ⬇️ Télécharger l'image
+        </button>
+        <button class="btn btn-glass" onclick="hidePremiumPaywall()"
+          style="width:100%; margin-top: 10px;">Fermer</button>
       </div>
 
     </div>
@@ -1468,9 +1764,10 @@
   <!-- ============================================
        PREMIUM STATUS MODAL
        ============================================ -->
-  <div id="premium-status-modal" class="modal-overlay hidden" style="z-index: 10000;">
-    <div class="modal glass paywall-glass">
-      <button class="paywall-close" onclick="document.getElementById('premium-status-modal').classList.add('hidden')">
+  <div id="premium-status-modal" class="modal-overlay hidden" style="z-index: 10000; background: rgba(0,0,0,0.4);">
+    <div class="modal glass" style="max-width: 400px;">
+      <button class="paywall-close" onclick="document.getElementById('premium-status-modal').classList.add('hidden')"
+        style="color: var(--text-primary); background: rgba(255,255,255,0.1);">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path
             d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -1524,10 +1821,12 @@
        ============================================ -->
   <div id="auth-modal" class="modal-overlay hidden">
     <div class="modal glass">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
-        <h2 class="modal-title" id="auth-title" style="margin-bottom: 0;">Connexion</h2>
+      <div
+        style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: var(--space-md);">
+        <h2 class="modal-title" id="auth-title" style="margin-bottom: 0; text-align: center; width: 100%;">Connexion
+        </h2>
         <button id="auth-close-btn"
-          style="background: none; border: none; color: var(--text-secondary); cursor: pointer;">
+          style="background: none; border: none; color: var(--text-secondary); cursor: pointer; position: absolute; right: 0;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -1559,6 +1858,10 @@
     </div>
   </div>
 
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- html2canvas for gift card generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Load static recipes first as fallback -->
   <script src="recipes.js?v=20250131_0625"></script>
@@ -1568,6 +1871,21 @@
   <!-- Firebase SDK - loads recipes from database and overrides static ones -->
   <!-- Cache bust: v1.2.0-VERBOSE-DEBUG-20250131 -->
   <script type="module" src="firebase-loader.js?v=20260220_5"></script>
+
+  <!-- Create Recipe FAB -->
+
+
+  <!-- Toast Notification -->
+  <div class="wemeal-toast" id="wemeal-toast"></div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => { });
+      });
+    }
+  </script>
 </body>
 
 </html>

@@ -2578,7 +2578,7 @@ window.deleteGiftCode = async function (code, isMilestone) {
         window._allGifts = window._allGifts.filter(g => g.code !== code);
         renderGiftCodes();
 
-        showToast('Code supprimé avec succès.');
+        showAdminToast('✅ Code supprimé avec succès.');
     } catch (err) {
         console.error("Erreur lors de la suppression:", err);
         alert('Erreur lors de la suppression du code cadeau : ' + err.message);

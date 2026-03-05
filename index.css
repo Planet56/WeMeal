@@ -39,19 +39,19 @@
   --conic-glow: conic-gradient(from var(--glow-angle), #6366f1, #8b5cf6, #06b6d4, #6366f1);
 
   /* Backgrounds — Ultra-deep */
-  --background: #0c1226;
-  --background-gradient-start: #0c1226;
-  --background-gradient-end: #050a1f;
+  --background: #080d1c;
+  --background-gradient-start: #080d1c;
+  --background-gradient-end: #020617;
 
   --surface-color: rgba(15, 23, 42, 0.85);
   --surface-highlight: #1e293b;
 
-  /* Glass — Refined */
-  --glass: rgba(15, 23, 42, 0.7);
-  --glass-bg: rgba(15, 23, 42, 0.75);
-  --glass-bg-solid: rgba(20, 30, 52, 0.95);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  /* Glass — Refined to ultra-premium modern look */
+  --glass: rgba(15, 23, 42, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-solid: rgba(15, 23, 42, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 
   /* Text */
   --text-primary: #f1f5f9;
@@ -110,35 +110,52 @@
    Light Theme Overrides
    ============================================ */
 body.light-mode {
-  /* Sober Light Theme — Soft cool gray, no neon, no eye-burn */
-  --background: #f0f2f7;
-  background: var(--background);
-  background-size: unset;
-  animation: none;
+  /* Colorful Theme — Vibrant pastel gradient */
+  --background: #fef9f4;
+  background: linear-gradient(135deg, #fef3e2, #fce4ec, #e8eaf6, #e0f7fa);
+  background-size: 400% 400%;
+  animation: colorful-bg 20s ease infinite;
 
-  /* Surface & Glass — Frosted white */
-  --surface-color: rgba(255, 255, 255, 0.75);
-  --glass: rgba(255, 255, 255, 0.55);
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-bg-solid: rgba(255, 255, 255, 0.85);
+  /* Surface & Glass — Warm white */
+  --surface-color: rgba(255, 255, 255, 0.85);
+  --glass: rgba(255, 255, 255, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-solid: rgba(255, 255, 255, 0.92);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 
-  /* Text Colors — High contrast on light */
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --text-dark: #1e293b;
+  /* Text Colors */
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8888aa;
+  --text-dark: #1a1a2e;
   --ai-thinking-brightness: 0.95;
 
-  /* Accent adjustments */
-  --heart-empty: #dc2626;
-  --heart-filled: #ef4444;
+  /* Accent — Warm coral-to-orange gradient */
+  --primary: #f97316;
+  --primary-rgb: 249, 115, 22;
+  --primary-glow: rgba(249, 115, 22, 0.2);
+  --secondary: #ec4899;
+  --heart-empty: #ec4899;
+  --heart-filled: #f43f5e;
 
-  /* Gradient accent stays vivid on light */
-  --gradient-accent: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
-  --conic-glow: conic-gradient(from var(--glow-angle), #818cf8, #a78bfa, #22d3ee, #818cf8);
-  --glow-gradient: conic-gradient(from var(--glow-angle), #a5b4fc, #bae6fd, #c4b5fd, #7dd3fc, #99f6e4, #bae6fd, #a5b4fc);
+  --gradient-accent: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6);
+  --conic-glow: conic-gradient(from var(--glow-angle), #f97316, #ec4899, #8b5cf6, #f97316);
+  --glow-gradient: conic-gradient(from var(--glow-angle), #fecaca, #fde68a, #c4b5fd, #a7f3d0, #fbcfe8, #fecaca);
+}
+
+@keyframes colorful-bg {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 body.light-mode .favorites-empty svg {
@@ -147,7 +164,7 @@ body.light-mode .favorites-empty svg {
 }
 
 body.light-mode .surprise-input-field {
-  color: #1e293b !important;
+  color: #1a1a2e !important;
 }
 
 body.light-mode .ai-thinking-inner {
@@ -159,7 +176,7 @@ body.light-mode .surprise-search-bar {
 }
 
 body.light-mode .logo {
-  background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #f97316, #ec4899);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -173,27 +190,29 @@ body.light-mode .nav-item {
 }
 
 body.light-mode .nav-item.active {
-  color: var(--primary);
+  color: #f97316;
 }
 
 body.light-mode .recipe-card {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.06);
 }
 
 body.light-mode .recipe-card:hover {
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12);
+  border-color: rgba(236, 72, 153, 0.15);
 }
 
 body.light-mode .bottom-nav {
-  background: rgba(255, 255, 255, 0.85);
-  border-top-color: rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
 }
 
 body.light-mode .filter-chip {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.06);
   color: var(--text-primary);
 }
 
@@ -204,18 +223,18 @@ body.light-mode .filter-chip.active {
 }
 
 body.light-mode .settings-card {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   border-color: rgba(0, 0, 0, 0.06);
 }
 
 body.light-mode .onboarding-overlay {
-  background: rgba(240, 242, 247, 0.98);
+  background: rgba(254, 249, 244, 0.98);
 }
 
 body.light-mode .onboarding-card,
 body.light-mode .wizard-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
 body.light-mode .modal {
@@ -224,19 +243,41 @@ body.light-mode .modal {
 }
 
 body.light-mode .shopping-item {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.75);
   border-color: rgba(0, 0, 0, 0.06);
 }
 
 body.light-mode .profile-stat-item,
 body.light-mode .stat-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
   border-color: rgba(0, 0, 0, 0.06);
 }
 
 body.light-mode .history-item:hover {
-  background: rgba(99, 102, 241, 0.06);
+  background: rgba(249, 115, 22, 0.06);
 }
+
+body.light-mode .category-chip {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .category-chip.active {
+  background: var(--gradient-accent);
+  color: white;
+  border-color: transparent;
+}
+
+body.light-mode .weather-season {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+body.light-mode .achievement-card.unlocked {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
 
 @keyframes gradientBG {
   0% {
@@ -336,7 +377,7 @@ body::after {
   display: flex;
   flex-direction: column;
   padding: var(--space-lg) var(--space-sm);
-  padding-bottom: 150px;
+  padding-bottom: calc(75px + env(safe-area-inset-bottom));
 }
 
 /* ============================================
@@ -880,6 +921,21 @@ body::after {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 4px;
+}
+
+.weather-season {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.3px;
 }
 
 
@@ -1441,18 +1497,19 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(15, 23, 42, 0.95);
+  background: var(--bg-primary, #0f172a);
   border: none;
+  outline: none;
   border-radius: var(--radius-full);
   padding: 8px 8px 8px 24px;
   box-shadow: none;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition: background 0.3s ease;
 }
 
 .surprise-search-bar:focus-within {
-  background: rgba(15, 23, 42, 0.98);
+  background: var(--bg-primary, #0f172a);
 }
 
 
@@ -1471,13 +1528,16 @@ body::after {
 
 .surprise-input-field {
   width: 100%;
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 500;
-  outline: none;
+  outline: none !important;
   font-family: var(--font-family);
+  padding: 0;
 }
 
 .surprise-input-field::placeholder {
@@ -1646,43 +1706,68 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  border: none;
-  border-radius: var(--radius-lg);
+  padding: 16px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.2);
+  border-radius: 100px;
+  /* Pillow / pill shape */
   font-family: var(--font-family);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: var(--transition-bounce);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 8px 32px rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
 }
 
-
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: 0.5s;
+}
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 16px 48px rgba(0, 0, 0, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .btn:active {
-  transform: translateY(0);
+  transform: translateY(2px) scale(0.98);
 }
 
 /* Primary Glowing Button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
-  border: none;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.4);
   box-shadow:
-    0 0 0 1px rgba(99, 102, 241, 0.3),
-    0 8px 24px -6px rgba(99, 102, 241, 0.5);
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 8px 32px rgba(99, 102, 241, 0.4);
   color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 1), rgba(139, 92, 246, 1));
   box-shadow:
-    0 0 0 1px rgba(99, 102, 241, 0.5),
-    0 12px 32px -6px rgba(99, 102, 241, 0.7);
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    0 12px 40px rgba(99, 102, 241, 0.6);
   color: #fff;
 }
 
@@ -1728,6 +1813,50 @@ body::after {
 
 .btn-primary:active {
   transform: translateY(-2px) scale(0.98);
+}
+
+/* ============================================
+   Inputs & Textareas - Glowing Cursor Effect
+   ============================================ */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  caret-color: #c4b5fd;
+  /* Vibrant caret color */
+  position: relative;
+  outline: none;
+}
+
+input:focus,
+textarea:focus {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--primary);
+  /* The glowing 'côté lumineux' on the left side of the input simulating a cursor */
+  box-shadow:
+    inset 4px 0 12px -2px rgba(139, 92, 246, 0.5),
+    0 0 0 2px rgba(99, 102, 241, 0.2),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Light mode overrides for inputs */
+body.light-mode input:focus,
+body.light-mode textarea:focus {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 4px 0 12px -2px rgba(99, 102, 241, 0.4),
+    0 0 0 2px rgba(99, 102, 241, 0.15),
+    0 4px 24px rgba(0, 0, 0, 0.05);
+  caret-color: var(--primary);
 }
 
 /* Liquid Glass Button for Cooking Steps */
@@ -1929,6 +2058,8 @@ body::after {
   visibility: hidden;
   position: absolute;
   opacity: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .page.active {
@@ -1936,8 +2067,11 @@ body::after {
   visibility: visible;
   position: relative;
   opacity: 1;
+  height: auto;
+  overflow: visible;
   animation: page-in 0.4s ease;
-  min-height: calc(100vh - 150px);
+  min-height: calc(100vh - 200px);
+  padding-bottom: 0;
 }
 
 @keyframes page-in {
@@ -2114,7 +2248,8 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
+  flex: 1;
 }
 
 .profile-avatar {
@@ -2388,8 +2523,11 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.3);
+  /* Lighter background, more transparent */
+  backdrop-filter: blur(16px);
+  /* Stronger blur for glass effect */
+  -webkit-backdrop-filter: blur(16px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -2412,6 +2550,9 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
   position: relative;
+  margin: auto;
+  max-height: none !important;
+  overflow-y: visible !important;
 }
 
 /* Specific Redesign for Subscription Status Modal */
@@ -2991,14 +3132,15 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(10, 15, 30, 0.7);
+  background: rgba(10, 15, 30, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   z-index: 500;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: var(--space-lg);
+  overflow-y: auto;
 }
 
 .onboarding-overlay.hidden {
@@ -3016,7 +3158,9 @@ body::after {
   animation: modal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: hidden;
+  overflow: visible;
+  margin: auto;
+  flex-shrink: 0;
 }
 
 .onboarding-card::before {
@@ -3717,6 +3861,105 @@ body::after {
   color: #22c55e;
 }
 
+/* ============================================
+   RECIPE EDIT MODE
+   ============================================ */
+#recipe-edit-mode {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: 90%;
+  max-width: 600px;
+  height: 80vh;
+  max-height: 800px;
+  background: var(--bg-deep);
+  /* Note: opacity will be handled by backdrop-filter if possible, but let's keep it solid for readability */
+  background: rgba(15, 23, 42, 0.95);
+  z-index: 1200;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+#recipe-edit-mode.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Background Blur when Edit Mode is active */
+body.edit-mode-active>*:not(#recipe-edit-mode):not(.modal-overlay) {
+  filter: blur(8px);
+  transition: filter 0.4s ease;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+}
+
+.ingredient-edit-row,
+.step-edit-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  animation: slideIn 0.3s ease-out;
+  margin-bottom: 8px;
+}
+
+.remove-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+#version-choice-modal .modal {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Profile Edit Styles */
 .profile-edit-wrapper {
   display: flex;
@@ -3731,13 +3974,14 @@ body::after {
 
 .profile-name-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--glass-bg);
+  border: 1px solid var(--primary-color);
   border-radius: var(--radius-sm);
-  padding: 4px 8px;
+  padding: 8px 12px;
   color: white;
   font-family: var(--font-family);
-  font-size: 1rem;
+  font-size: 1.1rem;
+  box-shadow: 0 0 10px rgba(79, 195, 247, 0.2);
 }
 
 .btn-save-profile {
@@ -4363,10 +4607,12 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.8);
   z-index: 2000;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  overflow-y: auto;
+  padding: var(--space-xl) var(--space-md);
 }
 
 /* Show modal-overlay when active (via JS) */
@@ -4415,8 +4661,13 @@ body::after {
   bottom: 0;
   z-index: 500;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding: var(--space-lg);
+  overflow-y: auto;
+  background: rgba(10, 15, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .onboarding-overlay.hidden {
@@ -4602,9 +4853,6 @@ body::after {
   min-height: 500px;
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
@@ -4855,6 +5103,7 @@ body::after {
   font-size: 2rem;
   background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 8px;
 }
@@ -4997,6 +5246,7 @@ body::after {
   font-size: 1.5rem;
   background: linear-gradient(to right, #fff, #94a3b8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
@@ -5004,13 +5254,51 @@ body::after {
 .party-dashboard {
   flex: 1;
   display: grid;
-  gap: 2px;
+  gap: 12px;
   background: #020617;
-  /* Dark separator lines */
-  padding: 2px;
+  padding: 12px;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- Tile Styling --- */
+/* Layouts based on data-size */
+/* 2 Cooks: Stacked vertically */
+.party-dashboard[data-size="2"] {
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr;
+}
+
+/* 3 Cooks: Top 2, Bottom 1 spanning both columns */
+.party-dashboard[data-size="3"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.party-dashboard[data-size="3"] .party-tile:nth-child(3) {
+  grid-column: span 2;
+}
+
+/* 4 Cooks: 2x2 Grid */
+.party-dashboard[data-size="4"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* Merged View: When everyone has the same task */
+.party-dashboard[data-merged="true"] {
+  grid-template-columns: 1fr !important;
+  grid-template-rows: 1fr !important;
+}
+
+.party-dashboard[data-merged="true"] .party-tile:not(.active-merged) {
+  display: none;
+}
+
+.party-dashboard[data-merged="true"] .party-tile.active-merged {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+
+/* Tile Styling */
 .party-tile {
   position: relative;
   background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -5018,8 +5306,15 @@ body::after {
   flex-direction: column;
   padding: 32px;
   overflow: hidden;
-  transition: all 0.5s ease;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.party-tile.active-merged {
+  padding: 64px;
+}
+
 
 /* Ambient Color Glow based on member color */
 .party-tile::before {
@@ -5220,6 +5515,7 @@ body::after {
 .state-overlay.finished .state-title {
   background: linear-gradient(135deg, #fbbf24, #d97706);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -5959,4 +6255,840 @@ body::after {
 
 #debug-inspector-tooltip {
   transition: opacity 0.1s ease;
+}
+
+/* Manage Mode & Selection UI */
+.recipe-card.manage-mode {
+  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.recipe-card.selected {
+  border-color: var(--primary) !important;
+  background: rgba(8, 145, 178, 0.1) !important;
+  box-shadow: 0 0 15px rgba(8, 145, 178, 0.3);
+}
+
+.selection-checkbox {
+  transition: all 0.2s ease;
+}
+
+.selection-checkbox.checked {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.recipe-card.manage-mode:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#manage-favorites-controls {
+  animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   GIFT SUCCESS ANIMATION (3D/SVG)
+   ============================================ */
+.gift-animation-scene {
+  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-anim-wemeal-card,
+.gift-anim-box,
+.gift-anim-truck,
+.gift-anim-check {
+  position: absolute;
+  font-size: 80px;
+  opacity: 0;
+  transform: translateZ(0) scale(0.5);
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+}
+
+/* 1. Card flies in */
+.gift-anim-wemeal-card {
+  animation: giftCardFly 3s forwards;
+}
+
+/* 2. Box appears and swallows the card */
+.gift-anim-box {
+  animation: giftBoxWrap 3s forwards;
+  animation-delay: 1.5s;
+}
+
+/* 3. Truck drives by and takes the box */
+.gift-anim-truck {
+  animation: giftTruckDrive 3s forwards;
+  animation-delay: 2.5s;
+}
+
+/* 4. Checkmark pops up at the end */
+.gift-anim-check {
+  animation: giftCheckPop 0.5s forwards;
+  animation-delay: 5s;
+}
+
+@keyframes giftCardFly {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) rotateY(90deg) scale(0.5);
+  }
+
+  20%,
+  40% {
+    opacity: 1;
+    transform: translateY(0) rotateY(0deg) scale(1.5);
+    z-index: 10;
+  }
+
+  60% {
+    transform: translateY(20px) scale(0.8);
+    opacity: 0;
+    z-index: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes giftBoxWrap {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scale(1.2) rotate(-10deg);
+  }
+
+  20%,
+  60% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  70% {
+    transform: translateX(50px) scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes giftTruckDrive {
+  0% {
+    opacity: 0;
+    transform: translateX(150px) scale(1);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateX(-200px) scale(1);
+  }
+}
+
+@keyframes giftCheckPop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Gift history item UI */
+.gift-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+.gift-history-item:last-child {
+  margin-bottom: 0;
+}
+
+.gift-history-details {
+  text-align: left;
+}
+
+.gift-history-code {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+
+.gift-history-status.unused {
+  color: var(--success);
+}
+
+.gift-history-status.used {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   PHASE 1: Staggered Card Fade-In
+   ============================================ */
+.recipe-card {
+  opacity: 0;
+  animation: card-cascade 0.5s ease forwards;
+}
+
+.recipe-card:nth-child(1) {
+  animation-delay: 0.04s;
+}
+
+.recipe-card:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.recipe-card:nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.recipe-card:nth-child(4) {
+  animation-delay: 0.16s;
+}
+
+.recipe-card:nth-child(5) {
+  animation-delay: 0.20s;
+}
+
+.recipe-card:nth-child(6) {
+  animation-delay: 0.24s;
+}
+
+.recipe-card:nth-child(7) {
+  animation-delay: 0.28s;
+}
+
+.recipe-card:nth-child(8) {
+  animation-delay: 0.32s;
+}
+
+.recipe-card:nth-child(9) {
+  animation-delay: 0.36s;
+}
+
+.recipe-card:nth-child(10) {
+  animation-delay: 0.40s;
+}
+
+.recipe-card:nth-child(11) {
+  animation-delay: 0.44s;
+}
+
+.recipe-card:nth-child(12) {
+  animation-delay: 0.48s;
+}
+
+@keyframes card-cascade {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   PHASE 1: Skeleton Loading
+   ============================================ */
+.skeleton-card {
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 120px;
+  overflow: hidden;
+}
+
+.skeleton-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.skeleton-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite ease-in-out;
+}
+
+.skeleton-line:nth-child(1) {
+  width: 45%;
+  height: 10px;
+}
+
+.skeleton-line:nth-child(2) {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-line:nth-child(3) {
+  width: 55%;
+  height: 12px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+body.light-mode .skeleton-circle,
+body.light-mode .skeleton-line {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 25%, rgba(0, 0, 0, 0.08) 50%, rgba(0, 0, 0, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite ease-in-out;
+}
+
+/* ============================================
+   PHASE 1: Navigation Badges
+   ============================================ */
+.nav-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  background: #ef4444;
+  border-radius: 9px;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  transform: translate(30%, -20%);
+  animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
+.nav-badge.hidden {
+  display: none;
+}
+
+.nav-badge-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #f59e0b;
+  border-radius: 50%;
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: translate(30%, -20%) scale(0);
+  }
+
+  100% {
+    transform: translate(30%, -20%) scale(1);
+  }
+}
+
+@keyframes badge-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
+}
+
+/* ============================================
+   PHASE 1: Recipe Card Difficulty Badge
+   ============================================ */
+.difficulty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.difficulty-badge.easy {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.difficulty-badge.medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.difficulty-badge.hard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ============================================
+   PHASE 2: Search Bar on Home
+   ============================================ */
+.home-search-container {
+  position: relative;
+  margin-bottom: var(--space-lg);
+}
+
+.home-search-bar {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--surface-color);
+  backdrop-filter: blur(20px);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.home-search-bar:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.home-search-bar::placeholder {
+  color: var(--text-muted);
+}
+
+.home-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ============================================
+   PHASE 2: Categories Carousel
+   ============================================ */
+.categories-carousel {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 0 var(--space-md) 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.category-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.category-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.category-chip.active {
+  background: var(--gradient-accent);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  font-weight: 600;
+}
+
+.category-chip .cat-emoji {
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   PHASE 3: Recipe Emoji Gradient Backgrounds
+   ============================================ */
+.recipe-emoji-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 3.5rem;
+  overflow: hidden;
+}
+
+.recipe-emoji-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.recipe-emoji-wrapper span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   PHASE 4: Share Button
+   ============================================ */
+.recipe-share-btn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.recipe-share-btn:hover {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+  transform: scale(1.15);
+}
+
+/* ============================================
+   PHASE 4: Notes on Recipes
+   ============================================ */
+.recipe-notes-section {
+  margin-top: var(--space-md);
+}
+
+.recipe-note-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.15);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  resize: vertical;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.recipe-note-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.recipe-note-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   PHASE 4: User Rating Stars
+   ============================================ */
+.rating-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.rating-star {
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  filter: grayscale(1) opacity(0.4);
+}
+
+.rating-star.active {
+  filter: none;
+}
+
+.rating-star:hover {
+  transform: scale(1.3);
+}
+
+/* ============================================
+   PHASE 4: Season Banner
+   ============================================ */
+.season-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-color);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.season-banner .season-icon {
+  font-size: 1.5rem;
+}
+
+.season-banner .season-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   PHASE 5: Gamification - Achievements
+   ============================================ */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.achievement-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--surface-color);
+  text-align: center;
+  transition: all 0.3s ease;
+  opacity: 0.4;
+}
+
+.achievement-card.unlocked {
+  opacity: 1;
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(234, 88, 12, 0.05));
+}
+
+.achievement-card .ach-icon {
+  font-size: 2rem;
+}
+
+.achievement-card .ach-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.achievement-card .ach-desc {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.1));
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  margin-bottom: var(--space-md);
+}
+
+.streak-badge .streak-fire {
+  font-size: 1.5rem;
+}
+
+.streak-badge .streak-text {
+  font-weight: 600;
+  color: #f97316;
+}
+
+.streak-badge .streak-count {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f97316;
+}
+
+/* ============================================
+   PHASE 4: Manual Recipe Creation Button
+   ============================================ */
+.create-recipe-fab {
+  position: fixed;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
+}
+
+.create-recipe-fab:hover {
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.6);
+}
+
+.create-recipe-fab:active {
+  transform: scale(0.95);
+}
+
+/* Toast notification */
+.wemeal-toast {
+  position: fixed;
+  bottom: calc(100px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.wemeal-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+body.light-mode .wemeal-toast {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1e293b;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Achievement Unlock Animation
+   ============================================ */
+.achievement-card.just-unlocked {
+  animation: achievement-unlock 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 60px rgba(251, 191, 36, 0.2);
+  border-color: rgba(251, 191, 36, 0.5) !important;
+}
+
+@keyframes achievement-unlock {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  70% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

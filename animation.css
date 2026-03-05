@@ -217,3 +217,724 @@
         background-position: -200% 0;
     }
 }
+
+
+/* ============================================
+   GAMIFICATION — Achievement & Milestone System
+   ============================================ */
+
+/* ---- Achievement Overlay ---- */
+.ach-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    padding: 20px;
+}
+
+.ach-modal-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ---- Base card ---- */
+.ach-modal-card {
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    padding: 36px 28px 28px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transform: translateY(30px) scale(0.92);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.ach-modal-overlay.visible .ach-modal-card {
+    transform: translateY(0) scale(1);
+}
+
+/* Top shine sweep */
+.ach-modal-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    right: -100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.8), transparent);
+    animation: shine-sweep 3s ease-in-out infinite;
+}
+
+@keyframes shine-sweep {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+/* Icon ring */
+.ach-modal-icon-ring {
+    font-size: 4rem;
+    line-height: 1;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.15), transparent 70%);
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 0 14px rgba(255, 215, 0, 0);
+    }
+}
+
+.ach-modal-sub {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #ffd700;
+    margin-bottom: 8px;
+}
+
+.ach-modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.ach-modal-desc {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 12px;
+}
+
+.ach-modal-congrats {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 24px;
+}
+
+/* Buttons */
+.ach-modal-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.ach-btn-share,
+.ach-btn-close {
+    padding: 12px 22px;
+    border-radius: 14px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ach-btn-share:active,
+.ach-btn-close:active {
+    transform: scale(0.95);
+}
+
+.ach-btn-share {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+}
+
+.ach-btn-close {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ach-btn-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Milestone Card ---- */
+.milestone-card {
+    background: var(--tier-gradient, linear-gradient(135deg, #ffd700, #ff8c00));
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.milestone-glow-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.milestone-badge-anim {
+    font-size: 5rem;
+    line-height: 1;
+    margin: 0 auto 14px;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+    animation: badge-bounce 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes badge-bounce {
+    0% {
+        transform: scale(0) rotate(-15deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.milestone-congrats {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+    letter-spacing: 0.05em;
+}
+
+.milestone-tier-name {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+.milestone-reward-box {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.milestone-reward-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+.milestone-reward-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.milestone-promo {
+    margin-top: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+    transition: background 0.2s;
+}
+
+.milestone-promo:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.promo-copy-hint {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-weight: 600;
+}
+
+.milestone-close-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.milestone-close-btn:hover {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Milestone Info Modal ---- */
+.minfo-card {
+    max-width: 420px;
+}
+
+.minfo-intro {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.5;
+    margin: 12px 0 20px;
+}
+
+.minfo-tiles {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.minfo-tile {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--tile-color, #aaa);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+}
+
+.minfo-tile-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.minfo-tile-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--tile-color, #fff);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+
+.minfo-tile-reward {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.3;
+}
+
+/* ---- Progress Bar ---- */
+.achp-wrap {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 18px 18px 14px;
+    margin-bottom: 18px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    user-select: none;
+}
+
+.achp-wrap:hover {
+    background: rgba(255, 255, 255, 0.09);
+    transform: translateY(-1px);
+}
+
+.achp-wrap:active {
+    transform: scale(0.98);
+}
+
+.achp-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.achp-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.achp-count {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.achp-bar-track {
+    position: relative;
+    height: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 22px;
+}
+
+.achp-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #cd7f32, #c0c0c0, #ffd700);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.achp-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(20, 20, 40, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: border-color 0.4s, box-shadow 0.4s;
+}
+
+.achp-dot-reached {
+    border-color: var(--dot-color, #ffd700);
+    box-shadow: 0 0 10px var(--dot-color, #ffd700);
+}
+
+.achp-labels-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.achp-tier-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.35);
+    transition: color 0.3s;
+    white-space: nowrap;
+}
+
+.achp-tier-reached {
+    color: var(--dot-color, #ffd700);
+}
+
+/* ---- Secret Book Button ---- */
+.secret-book-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    background: linear-gradient(135deg, #1a0a00, #3d1c00);
+    border: 1.5px solid rgba(255, 200, 80, 0.35);
+    border-radius: 18px;
+    color: #ffd580;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.secret-book-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 200, 80, 0.08) 50%, transparent 100%);
+    animation: book-shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes book-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.secret-book-btn:hover {
+    background: linear-gradient(135deg, #2a1200, #5a2a00);
+    transform: translateY(-1px);
+}
+
+.secret-book-vip {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.08em;
+}
+
+/* ---- Secret Book Modal ---- */
+.secret-book-card {
+    background: linear-gradient(160deg, #0a0500 0%, #1a0e00 50%, #251500 100%);
+    border-color: rgba(255, 200, 80, 0.25);
+    max-width: 440px;
+    max-height: 85vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 200, 80, 0.3) transparent;
+}
+
+.secret-book-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.secret-book-hicon {
+    font-size: 2.5rem;
+}
+
+.secret-book-htitle {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffd580;
+}
+
+.secret-book-hsub {
+    font-size: 0.72rem;
+    color: rgba(255, 215, 80, 0.55);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.secret-book-intro {
+    font-size: 0.85rem;
+    color: rgba(255, 200, 80, 0.6);
+    line-height: 1.6;
+    margin: 0 0 20px;
+    font-style: italic;
+}
+
+.secret-recipes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.secret-recipe-card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: rgba(255, 180, 50, 0.07);
+    border: 1px solid rgba(255, 180, 50, 0.15);
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.secret-recipe-icon {
+    font-size: 2.2rem;
+    flex-shrink: 0;
+}
+
+.secret-recipe-body {
+    text-align: left;
+}
+
+.secret-recipe-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffd580;
+    margin-bottom: 5px;
+}
+
+.secret-recipe-desc {
+    font-size: 0.78rem;
+    color: rgba(255, 200, 80, 0.6);
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.secret-recipe-meta {
+    font-size: 0.72rem;
+    color: rgba(255, 180, 50, 0.45);
+    font-weight: 600;
+}
+
+/* ---- Rank Borders on Profile Avatar ---- */
+@keyframes rank-spin {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+#profile-avatar.rank-bronze {
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    outline: 3px solid #cd7f32;
+    outline-offset: 2px;
+    box-shadow: 0 0 16px rgba(205, 127, 50, 0.6), inset 0 0 0 2px rgba(205, 127, 50, 0.2);
+    animation: rank-glow-bronze 2s ease-in-out infinite;
+}
+
+@keyframes rank-glow-bronze {
+
+    0%,
+    100% {
+        box-shadow: 0 0 12px rgba(205, 127, 50, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 24px rgba(205, 127, 50, 0.9);
+    }
+}
+
+#profile-avatar.rank-silver {
+    outline: 3px solid #c0c0d8;
+    outline-offset: 2px;
+    box-shadow: 0 0 16px rgba(192, 192, 216, 0.6);
+    animation: rank-glow-silver 2s ease-in-out infinite;
+}
+
+@keyframes rank-glow-silver {
+
+    0%,
+    100% {
+        box-shadow: 0 0 12px rgba(192, 192, 216, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 28px rgba(192, 192, 216, 0.9);
+    }
+}
+
+#profile-avatar.rank-gold {
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    animation: rank-glow-gold 1.5s ease-in-out infinite;
+}
+
+@keyframes rank-glow-gold {
+
+    0%,
+    100% {
+        box-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 32px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 140, 0, 0.4);
+    }
+}
+/* ============================================
+   RANK BADGES (BRONZE, SILVER, GOLD)
+   ============================================ */
+.profile-rank-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 2.5px solid rgba(255, 255, 255, 1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background-size: 200% 200%;
+}
+
+.profile-rank-badge.hidden {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+}
+
+/* Bronze Badge */
+.profile-rank-badge.bronze {
+    background: linear-gradient(135deg, #a75a31, #cd7f32, #8b4513);
+    box-shadow: 0 0 15px rgba(205, 127, 50, 0.6);
+    animation: badge-float 3s ease-in-out infinite, badge-shine 4s linear infinite;
+}
+
+/* Silver Badge */
+.profile-rank-badge.silver {
+    background: linear-gradient(135deg, #7f8c8d, #bdc3c7, #ecf0f1);
+    box-shadow: 0 0 15px rgba(192, 192, 216, 0.6);
+    animation: badge-float 3s ease-in-out infinite 0.5s, badge-shine 4s linear infinite;
+}
+
+/* Gold Badge */
+.profile-rank-badge.gold {
+    background: linear-gradient(135deg, #f1c40f, #ffd700, #f39c12);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+    animation: badge-float-gold 2.5s ease-in-out infinite, badge-shine 3s linear infinite;
+}
+
+.profile-rank-badge.gold::after {
+    content: \"\";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    animation: badge-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes badge-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+}
+
+@keyframes badge-float-gold {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1.15); }
+    50% { transform: translateY(-8px) rotate(15deg) scale(1.3); }
+}
+
+@keyframes badge-shine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes badge-ping {
+    75%, 100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}

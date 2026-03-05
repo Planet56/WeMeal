@@ -58,5 +58,11 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow read, write: if isAdmin();
     }
+
+    // Gift codes collection
+    match /gift_codes/{codeId} {
+      allow read: if request.auth != null && resource.data.buyerId == request.auth.uid;
+      allow read, write: if isAdmin();
+    }
   }
 }

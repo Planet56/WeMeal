@@ -240,12 +240,33 @@ async function loadUserData(uid) {
         try {
             const { query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
             // Sorting locally to avoid requiring a composite index in Firestore
-            const q = query(collection(db, "gift_codes"), where("buyerId", "==", uid));
-            const querySnapshot = await getDocs(q);
+            const qGifts = query(collection(db, "gift_codes"), where("buyerId", "==", uid));
+            const qMilestones = query(collection(db, "benefit_codes"), where("milestoneOwnerUid", "==", uid), where("isMilestoneReward", "==", true));
+
+            const [querySnapshot, milestoneSnapshot] = await Promise.all([
+                getDocs(qGifts),
+                getDocs(qMilestones)
+            ]);
+
             const gifts = [];
             querySnapshot.forEach((doc) => {
                 gifts.push(doc.data());
             });
+
+            milestoneSnapshot.forEach((doc) => {
+                const data = doc.data();
+                gifts.push({
+                    code: doc.id,
+                    plan: data.type === '1_week_premium' ? 'weekly' : 'monthly',
+                    status: data.totalUses > 0 ? 'used' : 'unused',
+                    buyerId: data.milestoneOwnerUid,
+                    createdAt: data.createdAt,
+                    usedBy: data.usedBy || null,
+                    isMilestone: true,
+                    tier: data.type === '1_week_premium' ? 2 : 3
+                });
+            });
+
             // Sort locally descending
             gifts.sort((a, b) => {
                 let d1 = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0;
