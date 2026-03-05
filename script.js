@@ -5265,12 +5265,25 @@ function renderAchievements() {
   const total = achievements.length;
   const storedMilestone = parseInt(localStorage.getItem('wemeal_milestone_tier') || '0');
 
-  // Start with the stored milestone (from cloud), but allow auto-increment if criteria met
-  let currentMilestone = storedMilestone;
+  // Start with calculation purely based on current unlocked count to allow demotions
+  let currentMilestone = 0;
   for (const t of MILESTONE_TIERS) {
     if (unlockedCount >= Math.ceil(total * t.fraction)) {
       if (t.tier > currentMilestone) currentMilestone = t.tier;
     }
+  }
+
+  // Handle demotions: If the calculated milestone is less than the previously stored milestone,
+  // it means the admin revoked an achievement and the user lost their rank.
+  if (currentMilestone < storedMilestone) {
+    // Clear the stored milestone so they can re-trigger the rewards if they earn it back
+    localStorage.setItem('wemeal_milestone_tier', String(currentMilestone));
+
+    // Clear any generated codes for the tiers they just lost, allowing fresh generation next time
+    for (let i = currentMilestone + 1; i <= storedMilestone; i++) {
+      localStorage.removeItem(`wemeal_milestone_code_t${i}`);
+    }
+    window.dispatchEvent(new CustomEvent('profile-updated'));
   }
 
   // Apply rank border & badge to profile avatar
@@ -5364,6 +5377,7 @@ function renderAchievements() {
     const tierInfo = MILESTONE_TIERS.find(t => t.tier === currentMilestone);
     if (tierInfo) {
       localStorage.setItem('wemeal_milestone_tier', String(currentMilestone));
+      window.dispatchEvent(new CustomEvent('profile-updated'));
       setTimeout(() => showMilestoneModal(tierInfo), newlyUnlocked.length > 0 ? 3500 : 500);
     }
   }
@@ -5453,6 +5467,11 @@ async function generateMilestoneCode(tier) {
 }
 
 async function showMilestoneModal(tierInfo) {
+  // Prevent multiple milestone modals from stacking
+  if (document.querySelector('.milestone-overlay')) {
+    document.querySelectorAll('.milestone-overlay').forEach(el => el.remove());
+  }
+
   const userName = (state.userProfile && state.userProfile.displayName) ? state.userProfile.displayName : 'Chef';
   const overlay = document.createElement('div');
   overlay.className = 'ach-modal-overlay milestone-overlay';
@@ -5467,7 +5486,7 @@ async function showMilestoneModal(tierInfo) {
       <div class="milestone-reward-box">
         <div class="milestone-reward-title">🎁 Votre récompense</div>
         <div class="milestone-reward-text">${tierInfo.reward}</div>
-        ${tierInfo.tier >= 2 ? `<div class="milestone-promo" id="milestone-promo-code-display" style="opacity:0.5">⏳ Génération de votre code…</div>` : ''}
+        ${tierInfo.tier >= 2 ? `<div class="milestone-promo" style="opacity:0.5">⏳ Génération de votre code…</div>` : ''}
       </div>
       <button class="ach-btn-close milestone-close-btn" onclick="this.closest('.ach-modal-overlay').remove()">Super ! 🚀</button>
     </div>
@@ -5486,7 +5505,8 @@ async function showMilestoneModal(tierInfo) {
   // Generate the real code and update the display
   if (tierInfo.tier >= 2) {
     const code = await generateMilestoneCode(tierInfo.tier);
-    const codeEl = document.getElementById('milestone-promo-code-display');
+    // Find the element within THIS specific modal instance instead of using a global ID
+    const codeEl = overlay.querySelector('.milestone-promo');
     if (codeEl) {
       if (code) {
         codeEl.style.opacity = '1';
