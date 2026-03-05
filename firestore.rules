@@ -39,6 +39,10 @@ service cloud.firestore {
       allow get: if request.auth != null;
       // Users can read milestone codes strictly assigned to them
       allow read: if request.auth != null && resource.data.milestoneOwnerUid == request.auth.uid;
+      // Users can create their own milestone reward code
+      allow create: if request.auth != null 
+                    && request.resource.data.isMilestoneReward == true
+                    && request.resource.data.milestoneOwnerUid == request.auth.uid;
       
       // Admins can manage everything
       allow read, write: if isAdmin();
