@@ -2551,7 +2551,7 @@ window.renderGiftCodes = function (giftsToRender = window._allGifts) {
                 <td style="padding: 12px;">${statusBadge}</td>
                 <td style="padding: 12px;">${usedByHtml}</td>
                 <td style="padding: 12px; text-align: right;">
-                    <button class="btn btn-glass btn-small" style="color: var(--danger); border-color: rgba(239,68,68,0.3); padding: 4px 8px;" onclick="deleteGiftCode('${code}', ${gift.isMilestone})">
+                    <button class="btn btn-glass btn-small" style="color: var(--danger); border-color: rgba(239,68,68,0.3); padding: 4px 8px;" onclick="deleteGiftCode('${code}', ${!!gift.isMilestone})">
                         Supprimer
                     </button>
                 </td>
@@ -2567,12 +2567,12 @@ window.deleteGiftCode = async function (code, isMilestone) {
     if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ce code cadeau ? L'utilisateur ne pourra plus l'utiliser ni le voir dans son historique.")) return;
 
     try {
-        const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+        const { doc, deleteDoc } = window.firebaseFunctions;
 
         // Supprimer de la collection appropriée selon si c'est un code promo (benefit_codes) ou une carte cadeau achetée (gift_codes)
         // Note: l'admin panel met `isMilestone` à true pour tout ce qui vient de benefit_codes
         const collectionName = isMilestone ? 'benefit_codes' : 'gift_codes';
-        await deleteDoc(doc(window.db, collectionName, code));
+        await deleteDoc(doc(window.firebaseDb, collectionName, code));
 
         // Retirer de la liste locale et re-rendre
         window._allGifts = window._allGifts.filter(g => g.code !== code);
@@ -2581,7 +2581,7 @@ window.deleteGiftCode = async function (code, isMilestone) {
         showToast('Code supprimé avec succès.');
     } catch (err) {
         console.error("Erreur lors de la suppression:", err);
-        alert('Erreur lors de la suppression du code cadeau.');
+        alert('Erreur lors de la suppression du code cadeau : ' + err.message);
     }
 };
 
