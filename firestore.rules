@@ -37,6 +37,8 @@ service cloud.firestore {
     match /benefit_codes/{codeId} {
       // Users can verify a code (get) via cloud function (indirectly) or direct check if needed
       allow get: if request.auth != null;
+      // Users can read milestone codes strictly assigned to them
+      allow read: if request.auth != null && resource.data.milestoneOwnerUid == request.auth.uid;
       
       // Admins can manage everything
       allow read, write: if isAdmin();

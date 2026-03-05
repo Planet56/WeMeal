@@ -241,7 +241,8 @@ async function loadUserData(uid) {
             const { query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
             // Sorting locally to avoid requiring a composite index in Firestore
             const qGifts = query(collection(db, "gift_codes"), where("buyerId", "==", uid));
-            const qMilestones = query(collection(db, "benefit_codes"), where("milestoneOwnerUid", "==", uid), where("isMilestoneReward", "==", true));
+            // Filtering isMilestoneReward on client to prevent need for composite index
+            const qMilestones = query(collection(db, "benefit_codes"), where("milestoneOwnerUid", "==", uid));
 
             const [querySnapshot, milestoneSnapshot] = await Promise.all([
                 getDocs(qGifts),
@@ -255,16 +256,18 @@ async function loadUserData(uid) {
 
             milestoneSnapshot.forEach((doc) => {
                 const data = doc.data();
-                gifts.push({
-                    code: doc.id,
-                    plan: data.type === '1_week_premium' ? 'weekly' : 'monthly',
-                    status: data.totalUses > 0 ? 'used' : 'unused',
-                    buyerId: data.milestoneOwnerUid,
-                    createdAt: data.createdAt,
-                    usedBy: data.usedBy || null,
-                    isMilestone: true,
-                    tier: data.type === '1_week_premium' ? 2 : 3
-                });
+                if (data.isMilestoneReward === true) {
+                    gifts.push({
+                        code: doc.id,
+                        plan: data.type === '1_week_premium' ? 'weekly' : 'monthly',
+                        status: data.totalUses > 0 ? 'used' : 'unused',
+                        buyerId: data.milestoneOwnerUid,
+                        createdAt: data.createdAt,
+                        usedBy: data.usedBy || null,
+                        isMilestone: true,
+                        tier: data.type === '1_week_premium' ? 2 : 3
+                    });
+                }
             });
 
             // Sort locally descending
